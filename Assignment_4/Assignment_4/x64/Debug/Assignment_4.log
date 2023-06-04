@@ -1,0 +1,10 @@
+﻿  customer.cpp
+  main.cpp
+G:\C++_Project\Assignment_4\Assignment_4\heap.hpp(145,36): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+G:\C++_Project\Assignment_4\Assignment_4\heap.hpp(141,27): message : while compiling class template member function 'void Heap<int>::printTree(void)'
+G:\C++_Project\Assignment_4\Assignment_4\main.cpp(27,21): message : see reference to function template instantiation 'void Heap<int>::printTree(void)' being compiled
+G:\C++_Project\Assignment_4\Assignment_4\main.cpp(18,15): message : see reference to class template instantiation 'Heap<int>' being compiled
+G:\C++_Project\Assignment_4\Assignment_4\heap.hpp(145,12): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+G:\C++_Project\Assignment_4\Assignment_4\heap.hpp(146,27): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+  Generating Code...
+  Assignment_4.vcxproj -> G:\C++_Project\Assignment_4\x64\Debug\Assignment_4.exe

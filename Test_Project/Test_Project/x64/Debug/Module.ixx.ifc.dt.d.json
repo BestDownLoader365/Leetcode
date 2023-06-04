@@ -1,0 +1,10 @@
+{
+    "Version": "1.2",
+    "Data": {
+        "Source": "g:\\c++_project\\test_project\\test_project\\module.ixx",
+        "ProvidedModule": "$safeitemname$",
+        "Includes": [],
+        "ImportedModules": [],
+        "ImportedHeaderUnits": []
+    }
+}
