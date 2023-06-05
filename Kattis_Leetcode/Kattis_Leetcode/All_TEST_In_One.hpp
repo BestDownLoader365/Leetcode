@@ -18,6 +18,31 @@ using namespace std;
 class Solution {
 
 public:
+	//TEST_406 start
+	vector<vector<int>> reconstructQueue(vector<vector<int>>& people) 
+	{
+
+	}
+	//TEST_406 end
+
+	//TEST_2460 start
+	vector<int> applyOperations(vector<int>& nums) 
+	{
+		int n = (int)nums.size();
+		for (int i = 0, j = 0; i < n; i++) {
+			if (i + 1 < n && nums[i] == nums[i + 1]) {
+				nums[i] *= 2;
+				nums[i + 1] = 0;
+			}
+			if (nums[i] != 0) {
+				swap(nums[i], nums[j]);
+				j++;
+			}
+		}
+		return nums;
+	}
+	//TEST_2460 end
+
 	//TEST_316 start
 	string removeDuplicateLetters(string s) 
 	{
@@ -42,7 +67,7 @@ public:
 			stock[ch - 'a']--;
 			cout << ans << endl;
 		}
-
+		
 		return ans;
 	}
 
@@ -367,6 +392,7 @@ public:
 	//TEST_414 end
 
 	//TEST_2517 start
+	//最大的最小，最小的最大可以用二分法
 	int maximumTastiness(vector<int>& price, int k) {
 		int n = (int)price.size();
 		sort(price.begin(), price.end());

@@ -3,6 +3,8 @@
 int main()
 {
 	Solution test;
-	string s = "cbacdcbc";
-	cout << test.removeDuplicateLetters(s) << endl;
+	vector<int> a{1, 2, 2, 1, 1, 0, 2, 2};
+	vector<int> b = test.applyOperations(a);
+	for (int i : b)
+		cout << i << endl;
 }
