@@ -8,7 +8,7 @@
 using namespace std;
 
 
-template <class T>
+template <class T> 
 ListNode<T>::ListNode(T n)
 {
 	_item = n;

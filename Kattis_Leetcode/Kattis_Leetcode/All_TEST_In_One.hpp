@@ -2,26 +2,358 @@
 #define ALL_TEST
 
 #include "All_Header.hpp"
-#include <iostream>
-#include <vector>
-#include <queue>
-#include <stack>
-#include <set>
-#include <iterator>
-#include <map>
-#include <unordered_map>
-#include <unordered_set>
-#include <tuple>
-#include <string>
-#include <numeric>
+
 using namespace std;
 class Solution {
-
 public:
+	//TEST_2611 start
+	//这个是贪心加排序
+	int miceAndCheese_sort(vector<int>& reward1, vector<int>& reward2, int k) {
+		int ans = 0;
+		int n = reward1.size();
+		vector<int> diffs(n);
+		for (int i = 0; i < n; i++) {
+			ans += reward2[i];
+			diffs[i] = reward1[i] - reward2[i];
+		}
+		sort(diffs.begin(), diffs.end());
+		for (int i = 1; i <= k; i++) {
+			ans += diffs[n - i];
+		}
+		return ans;
+	}
+	//这个是贪心加优先队列
+	int miceAndCheese(vector<int>& reward1, vector<int>& reward2, int k) 
+	{
+		int ans = 0;
+		if (k == 0)
+		{
+			for (int i : reward2)
+				ans += i;
+			return ans;
+		}
+		priority_queue<int, vector<int>, greater<int>> min_heap;
+		for (int i = 0; i < k; i++)
+		{
+			min_heap.push(reward1[i] - reward2[i]);
+			ans += reward1[i];
+		}
+		for (int i = k; i < (int)reward1.size(); i++)
+		{
+			int curr = reward1[i] - reward2[i];
+			if (curr > min_heap.top())
+			{
+				ans = ans - min_heap.top() + reward1[i];
+				min_heap.pop();
+				min_heap.push(curr);
+			}
+			else
+			{
+				ans += reward2[i];
+			}
+		}
+		return ans;
+
+	}
+	//TEST_2611 end
+
+	//TEST_67 start
+	string addBinary(string a, string b) 
+	{
+		string ans = "";
+		int p1 = (int)a.length() - 1;
+		int p2 = (int)b.length() - 1;
+		int carry = 0;
+		while (p1 >= 0 || p2 >= 0)
+		{
+			int curr;
+			if (p1 < 0)
+				curr = (b[p2] - '0') + carry;
+			else if (p2 < 0)
+				curr = (a[p1] - '0') + carry;
+			else
+				curr = (a[p1] - '0') + (b[p2] - '0') + carry;
+			if (curr == 3)
+			{
+				carry = 1;
+				ans.insert(ans.begin(), '1');
+			}
+			else if (curr == 2)
+			{
+				carry = 1;
+				ans.insert(ans.begin(), '0');
+			}
+			else if(curr == 1)
+			{
+				carry = 0;
+				ans.insert(ans.begin(), '1');
+			}
+			else
+			{
+				carry = 0;
+				ans.insert(ans.begin(), '0');
+			}
+			p1--;
+			p2--;
+		}
+		if (carry == 1)
+			ans.insert(ans.begin(), '1');
+		return ans;
+	}
+	//TEST_67 end
+
+	//TEST_58 start
+	int lengthOfLastWord(string s) 
+	{
+		int end = (int)s.length() - 1;
+		while (s[end] == ' ') 
+			end--;
+		int begin = end;
+		while (begin >= 0 && s[begin] != ' ' )
+		{
+			begin--;
+		}
+		return end - begin;
+	}
+	//TSET_58 end
+
+	//TEST_49 start
+	vector<vector<string>> groupAnagrams_sort(vector<string>& strs) 
+	{
+		unordered_map<string, vector<string>> mp;
+		for (string& str : strs) {
+			string key = str;
+			sort(key.begin(), key.end());
+			mp[key].emplace_back(str);
+		}
+		vector<vector<string>> ans;
+		for (auto it = mp.begin(); it != mp.end(); ++it) {
+			ans.emplace_back(it->second);
+		}
+		return ans;
+	}
+	//偷的别人的思想，试图给字母异位词一个特殊哈希值，但是此答案不是对的，并没有处理哈希碰撞，但是可以过leetcode
+	long getId_49(string a)
+	{
+		long ans = 1;
+		vector<long> map{2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 73, 79, 83, 89, 97, 101, 103, 107, 109, 113, 127};
+
+		for (long ch : a)
+		{
+			ans *= map[ch - 'a'];
+			ans %= 1073676287;
+		}
+		return ans;
+	}
+
+	vector<vector<string>> groupAnagrams(vector<string>& strs) 
+	{
+		map<long, vector<long>> stock;
+		vector<vector<string>> ans;
+		for (size_t i = 0; i < strs.size(); i++)
+		{
+			long curr = getId_49(strs[i]);
+			stock[curr].push_back((int)i);
+		}
+		for (auto i = stock.begin(); i != stock.end(); i++)
+		{
+			vector<long> curr = i->second;
+			vector<string> sub_ans;
+			for (size_t j = 0; j < curr.size(); j++)
+			{
+				sub_ans.push_back(strs[curr[j]]);
+			}
+			ans.push_back(sub_ans);
+		}
+
+		return ans;
+	}
+	//TEST_49 end
+
+	//TEST_48 start
+	void rotate(vector<vector<int>>& matrix) 
+	{
+		int n = (int)matrix.size();
+		for (int i = 0; i < n; i++)
+		{
+			for (int j = i + 1; j < n; j++)
+			{
+				int curr = matrix[i][j];
+				matrix[i][j] = matrix[j][i];
+				matrix[j][i] = curr;
+			}
+		}
+		for (int i = 0; i < n; i++)
+		{
+			for (int j = 0; j < n / 2; j++)
+			{
+				int curr = matrix[i][j];
+				matrix[i][j] = matrix[i][n - j - 1];
+				matrix[i][n - j - 1] = curr;
+			}
+		}
+
+	}
+	//TEST_48 end
+
+	//TEST_64 start
+	int minPathSum(vector<vector<int>>& grid) 
+	{
+		int row = (int)grid.size();
+		int col = (int)grid[0].size();
+		vector<vector<int>> dp(row, vector<int>(col));
+		dp[0][0] = grid[0][0];
+		for (int i = 1; i < row; i++)
+			dp[i][0] = dp[i - 1][0] + grid[i][0];
+		for (int i = 1; i < col; i++)
+			dp[0][i] = dp[0][i - 1] + grid[0][i];
+		for (int i = 1; i < row; i++)
+		{
+			for (int j = 1; j < col; j++)
+			{
+				dp[i][j] = min(dp[i - 1][j], dp[i][j - 1]) + grid[i][j];
+			}
+		}
+		return dp[row - 1][col - 1]; 
+	}
+	//TEST_64 end
+
+	//TEST_73 start
+	void setZeroes(vector<vector<int>>& matrix) 
+	{
+		bool rowFlag = false;
+		//判断首行
+		for (size_t i = 0; i < matrix[0].size(); i++) {
+			if (matrix[0][i] == 0) {
+				rowFlag = true;
+				break;
+			}
+		}
+
+		bool colFlag = false;
+		for (size_t i = 0; i < matrix.size(); i++) {
+			if (matrix[i][0] == 0) {
+				colFlag = true;
+				break;
+			}
+		}
+
+		for (size_t i = 1; i < matrix.size(); i++) {
+			for (size_t j = 1; j < matrix[0].size(); j++) {
+				if (matrix[i][j] == 0) {
+					matrix[i][0] = 0;
+					matrix[0][j] = 0;
+				}
+			}
+		}
+
+		for (size_t i = 1; i < matrix[0].size(); i++) {
+			if (matrix[0][i] == 0) {
+				for (size_t j = 0; j < matrix.size(); j++) {
+					matrix[j][i] = 0;
+				}
+			}
+		}
+
+		for (size_t i = 1; i < matrix.size(); i++) {
+			if (matrix[i][0] == 0) {
+				for (size_t j = 0; j < matrix[0].size(); j++) {
+					matrix[i][j] = 0;
+				}
+			}
+		}
+		if (rowFlag) {
+			for (size_t i = 0; i < matrix[0].size(); i++) {
+				matrix[0][i] = 0;
+			}
+		}
+		if (colFlag) {
+			for (size_t i = 0; i < matrix.size(); i++) {
+				matrix[i][0] = 0;
+			}
+		}
+	}
+	//TEST_73 end
+
+	//TEST_2352 start
+	int equalPairs(vector<vector<int>>& grid) 
+	{
+		int ans = 0;
+		map<vector<int>, int> stock;
+		for (vector<int> i : grid)
+			stock[i]++;
+		for (size_t i = 0; i < grid.size(); i++)
+		{
+			vector<int> temp;
+			for (size_t j = 0; j < grid.size(); j++)
+			{
+				temp.push_back(grid[j][i]);
+			}
+			ans += stock[temp];
+		}
+		return ans;
+	}
+	//TEST_2352 end
+
+	//TEST_621 start
+	int leastInterval(vector<char>& tasks, int n) 
+	{
+		int sameFreq = 0;
+		int maxkind = 0;
+		int a[26]{};
+		for (char ch : tasks)
+			a[ch - 'A']++;
+		for (int i : a)
+		{
+			if (i > maxkind)
+				maxkind = i;
+		}
+		for (int i : a)
+			if (i == maxkind)
+				sameFreq++;
+		int preserve = (maxkind - 1) * (n + 1) + sameFreq;
+
+		return max((int)tasks.size(), preserve);
+	}
+	//TEST_621 end
+
+	//TEST_561 start
+	int arrayPairSum(vector<int>& nums) 
+	{
+		int ans = 0;
+		sort(nums.begin(), nums.end());
+		size_t i = 0;
+		for (; i < nums.size() - 1; i += 2)
+		{
+			ans += min(nums[i], nums[i + 1]);
+		}
+		return ans;
+	}
+	//TEST_561 end
+
 	//TEST_406 start
 	vector<vector<int>> reconstructQueue(vector<vector<int>>& people) 
 	{
-
+		auto c = [](const vector<int>& a, const vector<int>& b)
+		{
+			if (a[0] == b[0]) return a[1] < b[1];
+			return a[0] > b[0];
+		};
+		sort(people.begin(), people.end(), c);
+		//为什么用list是因为vector的底层实现是数组，list的底层实现是列表
+		//很明显，链表更适合不断的插入，数组不适合，因为数组需要扩容
+		list<vector<int>> ans;
+		for (size_t i = 0; i < people.size(); i++)
+		{
+			int pos = people[i][1];
+			auto j = ans.begin();
+			while (pos--)
+			{
+				j++;
+			}
+			ans.insert(j, people[i]);
+		}
+		return vector<vector<int>>(ans.begin(), ans.end());
 	}
 	//TEST_406 end
 

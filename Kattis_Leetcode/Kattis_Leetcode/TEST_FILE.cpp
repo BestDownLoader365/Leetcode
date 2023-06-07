@@ -3,8 +3,7 @@
 int main()
 {
 	Solution test;
-	vector<int> a{1, 2, 2, 1, 1, 0, 2, 2};
-	vector<int> b = test.applyOperations(a);
-	for (int i : b)
-		cout << i << endl;
+	vector<int> a{1,2,1,2,1,2};
+	vector<int> b{2,1,1,2,2,1};
+	cout << test.miceAndCheese(a, b, 0) << endl;
 }

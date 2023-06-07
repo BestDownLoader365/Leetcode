@@ -4,7 +4,7 @@
 
 class nodeWeightPair {
 private:
-	int _node;
+	int _node; 
 	int _weight;
 
 public:

@@ -1,6 +1,6 @@
 #pragma once
 #define DEFAULTHEAPSIZE 1023
-template <class T>
+template <class T> 
 class Heap {
 protected:
 	T* _heap;
