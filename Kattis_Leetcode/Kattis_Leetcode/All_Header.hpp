@@ -14,6 +14,7 @@
 #include <tuple>
 #include <string>
 #include <numeric>
+using namespace std;
 // Definition for a binary tree node.
 class TreeNode {
 public:
@@ -35,8 +36,7 @@ public:
 
 };
 
-class SubTree
-{
+class SubTree{
 public:
 	int minVal;
 	int maxVal;
@@ -54,6 +54,57 @@ public:
 		maxVal = maVal;
 		sumVal = sVal;
 	}
+};
+
+class UF {
+private:
+	vector<int> parent;
+	vector<int> size;
+public:
+	UF(int n)
+	{
+		parent.resize(n);
+		size.resize(n);
+		for (int i = 0; i < n; i++)
+		{
+			parent[i] = i;
+			size[i] = 1;
+		}
+	}
+	void _union(int p, int q)
+	{
+		int rootP = find(p);
+		int rootQ = find(q);
+		if (rootP == rootQ)
+			return;
+		if (size[p] > size[q])
+		{
+			parent[rootQ] = rootP;
+			size[rootP] += size[rootQ];
+		}
+		else
+		{
+			parent[rootP] = rootQ;
+			size[rootQ] += size[rootP];
+		}
+	}
+	int find(int x)
+	{
+		if (parent[x] != x)
+			parent[x] = find(parent[x]);
+		return parent[x];
+	}
+	int getMaxConnectSize() 
+	{
+		int maxSize = 0;
+		for (int i = 0; i < (int)parent.size(); i++) 
+		{
+			if (i == parent[i]) 
+				maxSize = max(maxSize, size[i]);
+		}
+		return maxSize;
+	}
+
 };
 
 /*c++ using custom compare function!!!!!!

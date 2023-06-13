@@ -3,7 +3,6 @@
 int main()
 {
 	Solution test;
-	vector<int> a{1,2,1,2,1,2};
-	vector<int> b{2,1,1,2,2,1};
-	cout << test.miceAndCheese(a, b, 0) << endl;
+	vector<int> a{0, 3, 7, 2, 5, 8, 4, 6, 0, 1};
+	cout << test.longestConsecutive_UF(a) << endl;
 }

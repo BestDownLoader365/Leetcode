@@ -6,11 +6,449 @@
 using namespace std;
 class Solution {
 public:
+	//TEST_137 start
+	//woshishabi
+	int singleNumber(vector<int>& nums) 
+	{
+		int a = 0, b = 0;
+		for (auto num : nums)
+		{
+			a = (a ^ num) & ~b;
+			b = (b ^ num) & ~a;
+		}
+		return a;
+	}
+	//TEST_137 end
+
+	//TEST_120 start
+	//可以优化，因为每一行的状态只跟上一行有关，所以只用开辟2n的额外空间就可以
+	int minimumTotal(vector<vector<int>>& triangle) 
+	{
+		int n = (int)triangle.size();
+		vector<vector<int>> dp(n, vector<int>(n));
+		dp[0][0] = triangle[0][0];
+
+		for (int i = 1; i < n; i++)
+		{
+			for (int j = 0; j <= i; j++)
+			{
+				if (j == 0)
+					dp[i][j] = dp[i - 1][j] + triangle[i][j];
+				else if (j == i)
+					dp[i][j] = dp[i - 1][j - 1] + triangle[i][j];
+				else
+				{
+					dp[i][j] = min(dp[i - 1][j - 1], dp[i - 1][j]) + triangle[i][j];
+				}
+			}
+		}
+		int ans = INT_MAX;
+
+		for (int i = 0; i < n; i++)
+		{
+			ans = min(ans, dp[n - 1][i]);
+		}
+		return ans;
+	}
+	//TEST_120 end
+
+	//TEST_130 start
+	//BFS
+	void solve_BFS(vector<vector<char>>& board)
+	{
+		queue<pair<int, int>> stock;
+		int row = (int)board.size();
+		int col = (int)board[0].size();
+		for (int i = 0; i < row; i++)
+		{
+			if (board[i][0] == 'O')
+				stock.push(make_pair(i, 0));
+			if (board[i][col - 1] == 'O')
+				stock.push(make_pair(i, col - 1));
+		}
+		for (int i = 0; i < col; i++)
+		{
+			if (board[0][i] == 'O')
+				stock.push(make_pair(0, i));
+			if (board[row - 1][i] == 'O')
+				stock.push(make_pair(row - 1, i));
+		}
+		while (!stock.empty())
+		{
+			pair<int, int> a = stock.front();
+			stock.pop();
+			if (board[a.first][a.second] == 'O')
+			{
+				board[a.first][a.second] = '!';
+				int x = a.first + 1;
+				int y = a.second;
+				if (!(x == row || y == col || x == -1 || y == -1))
+					stock.push(make_pair(x, y));
+				x = a.first - 1;
+				y = a.second;
+				if (!(x == row || y == col || x == -1 || y == -1))
+					stock.push(make_pair(x, y));
+				x = a.first;
+				y = a.second + 1;
+				if (!(x == row || y == col || x == -1 || y == -1))
+					stock.push(make_pair(x, y));
+				x = a.first;
+				y = a.second - 1;
+				if (!(x == row || y == col || x == -1 || y == -1))
+					stock.push(make_pair(x, y));
+			}
+		}
+		for (int i = 0; i < row; i++)
+		{
+			for (int j = 0; j < col; j++)
+			{
+				if (board[i][j] == '!')
+					board[i][j] = 'O';
+				else if (board[i][j] == 'O')
+					board[i][j] = 'X';
+			}
+		}
+	}
+	//DFS
+	void DFS_130(int x, int y, int row, int col, vector<vector<char>>& board)
+	{
+		if (x == row || y == col || x == -1 || y == -1)
+			return;
+		if (board[x][y] == 'O')
+		{
+			board[x][y] = '!';
+			DFS_130(x + 1, y, row, col, board);
+			DFS_130(x - 1, y, row, col, board);
+			DFS_130(x, y + 1, row, col, board);
+			DFS_130(x, y - 1, row, col, board);
+		}
+	}
+
+	void solve(vector<vector<char>>& board) 
+	{
+		int row = (int)board.size();
+		int col = (int)board[0].size();
+		for (int i = 0; i < row; i++)
+		{
+			if (board[i][0] == 'O')
+				DFS_130(i, 0, row, col, board);
+			if (board[i][col -1] == 'O')
+				DFS_130(i, col - 1, row, col, board);
+		}
+		for (int i = 0; i < col; i++)
+		{
+			if (board[0][i] == 'O')
+				DFS_130(0, i, row, col, board);
+			if (board[row - 1][i] == 'O')
+				DFS_130(row - 1, i, row, col, board);
+		}
+		for (int i = 0; i < row; i++)
+		{
+			for (int j = 0; j < col; j++)
+			{
+				if (board[i][j] == '!')
+					board[i][j] = 'O';
+				else if (board[i][j] == 'O')
+					board[i][j] = 'X';
+			}
+		}
+	}
+	//TEST_130 end
+
+	//TEST_2475 start
+	int unequalTriplets(vector<int>& nums) 
+	{
+		unordered_map<int, int> stock;
+		for (int i : nums)
+			stock[i]++;
+
+		int n = (int)nums.size();
+		int ans = 0, pre = 0;
+		for (auto i = stock.begin(); i != stock.end(); i++)
+		{
+			int curr = i->second;
+			ans += pre * curr * (n - pre - curr);
+			pre += curr;
+		}
+		return ans;
+	}
+	//TEST_2475 end
+
+	//TEST_128 start
+	//Union_Find
+	int longestConsecutive_UF(vector<int>& nums)
+	{
+		map<int, int> stock;
+		UF uf((int)nums.size());
+
+		for (int i = 0; i < (int)nums.size(); i++)
+		{
+			if (stock.count(nums[i]))
+				continue;
+			if (stock.count(nums[i] - 1))
+				uf._union(i, stock[nums[i] - 1]);
+			if (stock.count(nums[i] + 1))
+				uf._union(i, stock[nums[i] + 1]);
+			stock[nums[i]] = i;
+		}
+		return uf.getMaxConnectSize();
+	}
+
+	//hashmap
+	int longestConsecutive(vector<int>& nums) 
+	{
+		int cur_num = 0;
+		int cur_len = 0;
+		int longest_len = 0;
+		unordered_set<int> stock;
+		for (int i : nums)
+			stock.insert(i);
+		
+		for (int i : nums)
+		{
+			if (!stock.count(i - 1))
+			{
+				cur_len = 1;
+				cur_num = i + 1;
+				while (stock.count(cur_num))
+				{
+					cur_len++;
+					cur_num++;
+				}
+				longest_len = max(longest_len, cur_len);
+			}
+		}
+		return longest_len;
+	}
+	//TEST_128 end
+
+	//TEST_80 start
+	int removeDuplicates(vector<int>& nums) 
+	{
+		int n = (int)nums.size();
+		if (n <= 2)
+			return n;
+		int slow = 2, fast = 2;
+		while (fast < n)
+		{
+			if (nums[slow - 2] != nums[fast]) 
+			{
+				nums[slow] = nums[fast];
+				++slow;
+			}
+			++fast;
+		}
+		return slow;
+	}
+	//TEST_80 end
+
+	//TEST_90 start
+	void DFS_90(vector<int>& combine, vector<vector<int>>& ans, int idx, vector<int> nums)
+	{
+		ans.push_back(combine);
+
+		for (int i = idx; i < (int)nums.size(); i++)
+		{
+			if (i > idx && nums[i] == nums[i - 1])
+				continue;
+			combine.push_back(nums[i]);
+			DFS_90(combine, ans, i + 1, nums);
+			combine.pop_back();
+		}
+	}
+
+	vector<vector<int>> subsetsWithDup(vector<int>& nums) 
+	{
+		vector<int> combine;
+		vector<vector<int>> ans;
+		sort(nums.begin(), nums.end());
+		DFS_90(combine, ans, 0, nums);
+		return ans;
+	}
+	//TEST_90 end
+
+	//TEST_75 start
+	void sortColors(vector<int>& nums) {
+		int n = (int)nums.size();
+		int p0 = 0, p2 = n - 1;
+		for (int i = 0; i <= p2; ++i) {
+			while (i <= p2 && nums[i] == 2) {
+				swap(nums[i], nums[p2]);
+				--p2;
+			}
+			if (nums[i] == 0) {
+				swap(nums[i], nums[p0]);
+				++p0;
+			}
+		}
+	}
+	//TEST_75 end
+
+	//TEST_93 start
+	void DFS_93(vector<string>& ans, int n, int pre, string& s)
+	{
+		if (pre >= s.length())
+			return;
+		if (n == 0 && (s.length() - pre) > 3)
+			return;
+		if (n == 0 && (s.length() - pre) > 1 && s[pre] == '0')
+			return;
+		if (n == 0 && (stoi(s.substr(pre)) > stoi("255")))
+			return;
+		if (n == 0)
+		{
+			ans.push_back(s);
+			return;
+		}
+		for (int i = 1; i < 4; i++)
+		{
+			if (i == 1)
+			{
+				s.insert(pre + i, ".");
+				DFS_93(ans, n - 1, pre + i + 1, s);
+				s.erase(pre + i, 1);
+			}
+			else
+			{
+				if (s[pre] == '0')
+					continue;
+				if (i == 3 && (stoi(s.substr(pre, 3)) > stoi("255")))
+					continue;
+				if ((pre + i) >= s.length())
+					continue;
+				s.insert(pre + i, ".");
+				DFS_93(ans, n - 1, pre + i + 1, s);
+				s.erase(pre + i, 1);
+			}
+		}
+	}
+
+	vector<string> restoreIpAddresses(string s) 
+	{
+		vector<string> ans;
+		string combine;
+		DFS_93(ans, 3, 0, s);
+		return ans;
+	}
+	//TEST_93 end
+
+	//TEST_131 start
+	void DFS_131(vector<string>& combine, vector<vector<string>>& ans, int start,int end, vector<vector<bool>>& dp, string s)
+	{
+		for (int i = start; i <= end; i++)
+		{
+			if (dp[start][i])
+			{
+				combine.push_back(s.substr(start, i - start + 1));
+				if (i == s.length() - 1)
+				{
+					ans.push_back(combine);
+					combine.pop_back();
+					return;
+				}
+				DFS_131(combine, ans, i + 1, end, dp, s);
+				combine.pop_back();
+			}
+		}
+	}
+
+	vector<vector<string>> partition(string s) 
+	{
+		vector<vector<bool>> dp(s.length(), vector<bool>(s.length()));
+
+		for (size_t i = 0; i < s.length(); i++)
+			dp[i][i] = true;
+		for (size_t L = 2; L <= s.length(); L++)
+		{
+			for (size_t i = 0; i < s.length(); i++)
+			{
+				int j = (int)(i + L - 1);
+				if (j >= s.length())
+					break;
+				if (s[i] != s[j])
+					dp[i][j] = false;
+				else
+				{
+					if (j - i < 3)
+						dp[i][j] = true;
+					else
+						dp[i][j] = dp[i + 1][j - 1];
+				}
+			}
+		}
+		vector<string> combine;
+		vector<vector<string>> ans;
+		DFS_131(combine, ans, 0, (int)s.length() - 1, dp, s);
+		return ans;
+	}
+	//TEST_131 end
+
+	//TEST_171 start
+	int titleToNumber(string columnTitle) 
+	{
+		long ans = 0;
+		long multiply = 1;
+		for (int i = (int)columnTitle.size() - 1; i >= 0; i--)
+		{
+			ans += (columnTitle[i] - 64) * multiply;
+			multiply *= 26;
+		}
+		return ans;
+	}
+	//TEST_171 end
+
+	//TEST_125 start
+	//双指针解法
+	bool isPalindrome_two_pointer(string s) {
+		string sgood;
+		for (char ch : s) {
+			if (isalnum(ch)) {
+				sgood += tolower(ch);
+			}
+		}
+		int n = (int)sgood.size();
+		int left = 0, right = n - 1;
+		while (left < right) {
+			if (sgood[left] != sgood[right]) {
+				return false;
+			}
+			++left;
+			--right;
+		}
+		return true;
+	}
+	//自己的解法我他妈像个智障！！！
+	bool isPalindrome(string s) 
+	{
+		vector<char> str;
+		for (size_t i = 0; i < s.length(); i++)
+		{
+			if ((s[i] >= 65 && s[i] <= 90) || (s[i] >= 97 && s[i] <= 122) || (s[i] >= 48 && s[i] <= 57))
+				str.push_back(s[i]);
+		}
+		auto index = str.begin();
+		for (int i = (int)s.length() - 1; i >= 0; i--)
+		{
+			if ((s[i] >= 65 && s[i] <= 90) || (s[i] >= 97 && s[i] <= 122) || (s[i] >= 48 && s[i] <= 57))
+			{
+				if (s[i] >= 65 && s[i] <= 90 && s[i] != *index && s[i] != *index - 32)
+					return false;
+				else if (s[i] >= 97 && s[i] <= 122 && s[i] != *index && s[i] != *index + 32)
+					return false;
+				else if (s[i] >= 48 && s[i] <= 57 && s[i] != *index)
+					return false;
+				index++;
+			}
+		}
+		return true;
+	}
+	//TEST_125 end
+
 	//TEST_2611 start
 	//这个是贪心加排序
 	int miceAndCheese_sort(vector<int>& reward1, vector<int>& reward2, int k) {
 		int ans = 0;
-		int n = reward1.size();
+		int n = (int)reward1.size();
 		vector<int> diffs(n);
 		for (int i = 0; i < n; i++) {
 			ans += reward2[i];
@@ -1084,7 +1522,7 @@ public:
 	//TEST_40 end
 
 	//TEST_39 start
-	//递归时尽量保证方程参数较少为好，时间空间的消耗都会变少
+	//要做剪枝，否则不行
 	void dfs_39(vector<vector<int>>& ans, vector<int>& combine, int target, int sum, vector<int> candidiates, int index)
 	{
 		if (sum == target)
