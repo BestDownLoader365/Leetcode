@@ -14,6 +14,11 @@
 #include <tuple>
 #include <string>
 #include <numeric>
+#include <array>
+#include <stdio.h>
+#include <intrin.h>
+#include <bitset>
+#include <cstdint>
 using namespace std;
 // Definition for a binary tree node.
 class TreeNode {
@@ -105,6 +110,26 @@ public:
 		return maxSize;
 	}
 
+};
+
+class Double_Tree_Array {
+private:
+	const int N = (int)1e5 + 10;
+public:
+	int lowbit(int x)
+	{
+		return x & -x;
+	}
+	void update(int* tr, int x, int v)
+	{
+		for (int i = x; i < N; i += lowbit(i)) tr[i] += v;
+	}
+	int query(int* tr, int x)
+	{
+		int ans = 0;
+		for (int i = x; i > 0; i -= lowbit(i)) ans += tr[i];
+		return ans;
+	}
 };
 
 /*c++ using custom compare function!!!!!!

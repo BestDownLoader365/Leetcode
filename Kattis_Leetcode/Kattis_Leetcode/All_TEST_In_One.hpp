@@ -6,6 +6,274 @@
 using namespace std;
 class Solution {
 public:
+	//TEST_213 start
+	int rob_213(vector<int>& nums) 
+	{
+		int n = (int)nums.size();
+		if (n == 1)
+			return nums[0];
+		vector<int>dp(nums.size() + 2, 0);
+		vector<int>dp2(nums.size() + 2, 0);
+		for (int i = 0; i < (int)nums.size() - 1; i++)
+		{
+			dp[i + 2] = max(dp[i + 1], dp[i] + nums[i + 2]);
+		}
+		for (int i = 1; i < (int)nums.size(); i++)
+		{
+			dp2[i + 2] = max(dp2[i + 1], dp2[i] + nums[i + 2]);
+		}
+		return max(dp[n], dp2[n + 1]);
+	}
+	//TEST_213 end
+
+	//TEST_2466 start
+	int countGoodStrings(int low, int high, int zero, int one) 
+	{
+		long mod = 1000000007;
+		long ans = 0;
+		vector<int> dp(high + 1, 0);
+		dp[0] = 1;
+		for (int i = 0; i < high + 1; i++)
+		{
+			if (i >= zero)
+			{
+				dp[i] += dp[i - zero];
+				dp[i] %= mod;
+			}
+			if (i >= one)
+			{
+				dp[i] += dp[i - one];
+				dp[i] %= mod;
+			}
+			if (i >= low)
+			{
+				ans += dp[i];
+				ans %= mod;
+			}
+		}
+		return ans;
+
+	}
+	//TEST_2466 end
+
+	//TEST_198 start
+	//dp
+	int rob_DP(vector<int>& nums)
+	{
+		int n = (int)nums.size();
+		int dp1 = 0;
+		int dp2 = 0;
+		int dp3 = 0;
+		for (int i = 0; i < n; i++)
+		{
+			dp3 = max(dp2, dp1 + nums[i]);
+			dp1 = dp2;
+			dp2 = dp3;
+		}		
+		return dp2;
+	}
+	//递归
+	int DFS_198(int idx, vector<int> nums, int*& cache)
+	{
+		if (idx < 0)
+			return 0;
+		if (cache[idx] != -1)
+			return cache[idx];
+
+		cache[idx] = max(DFS_198(idx - 1, nums, cache), DFS_198(idx - 2, nums, cache) + nums[idx]);
+		return max(DFS_198(idx - 1, nums, cache), DFS_198(idx - 2, nums, cache) + nums[idx]);
+	}
+
+	int rob(vector<int>& nums) 
+	{
+		int n = (int)nums.size();
+		int ans = 0;
+		int* cache = new int[n];
+		for (int i = 0; i < n; i++)
+			cache[i] = -1;
+		return DFS_198(n - 1, nums, cache);
+	}
+	//TEST_198 end
+
+	//TEST_494 start
+	//dp
+	int findTargetSumWays_DP(vector<int>& nums, int target) 
+	{
+		int sum = 0;
+		for (int& num : nums) 
+		{
+			sum += num;
+		}
+		int diff = sum - target;
+		if (diff < 0 || diff % 2 != 0) 
+		{
+			return 0;
+		}
+		int n = (int)nums.size(), neg = diff / 2;
+		cout << neg << endl;
+		vector<vector<int>> dp(n + 1, vector<int>(neg + 1));
+		dp[0][0] = 1;
+		for (int i = 1; i <= n; i++) 
+		{
+			int num = nums[i - 1];
+			for (int j = 0; j <= neg; j++) 
+			{
+				dp[i][j] = dp[i - 1][j];
+				if (j >= num) 
+				{
+					dp[i][j] += dp[i - 1][j - num];
+				}
+			}
+		}
+		for (int i = 0; i <= n; i++)
+		{
+			for (int j = 0; j <= neg; j++)
+			{
+				cout << dp[i][j] << " ";
+			}
+			cout << endl;
+		}
+		return dp[n][neg];
+	}
+	//Recursion
+	int DFS_494(int i, int target, int length, vector<int>& nums)
+	{
+		if (i == length)
+		{
+			if (target == 0)
+				return 1;
+			else
+				return 0;
+		}
+		return DFS_494(i + 1, target, length, nums) + DFS_494(i + 1, target - nums[i], length, nums);
+	}
+
+	int findTargetSumWays(vector<int>& nums, int target) 
+	{
+		int n = (int)nums.size();
+		int sum = 0;
+		for (int i : nums)
+			sum += i;
+
+		target += sum;
+		if (target < 0 || target & 1)
+			return 0;
+
+		target /= 2;
+		return DFS_494(0, target, n, nums);
+	}
+	//TEST_494 end
+
+	//TEST_1177 start
+	vector<bool> canMakePaliQueries(string s, vector<vector<int>>& queries) 
+	{
+		int n = (int)s.length(), q = (int)queries.size();
+		int* sum = new int[n + 1] {};
+		for (int i = 0; i < n; i++) 
+		{
+			int bit = 1 << (s[i] - 'a');
+			sum[i + 1] = sum[i] ^ bit;
+		}
+
+		vector<bool> ans(q);
+		for (int i = 0; i < q; i++) {
+			auto& query = queries[i];
+			int left = query[0], right = query[1], k = query[2];
+			int m = __popcnt(sum[right + 1] ^ sum[left]);
+			ans[i] = m / 2 <= k;
+		}
+		return ans;
+	}
+	//TEST_1177 end
+
+	//TEST_1409 start
+	vector<int> processQueries(vector<int>& queries, int m) 
+	{
+		vector<int> p(m);
+		iota(p.begin(), p.end(), 1);
+		vector<int> ans;
+		for (int query : queries) {
+			int pos = -1;
+			for (int i = 0; i < m; ++i) {
+				if (p[i] == query) {
+					pos = i;
+					break;
+				}
+			}
+			ans.push_back(pos);
+			p.erase(p.begin() + pos);
+			p.insert(p.begin(), query);
+		}
+		return ans;
+	}
+	//TEST_1409 end
+
+	//TEST_1395 start
+	//树状数组初次尝试（抄一下）
+	int numTeams_Treearray(vector<int>& rating)
+	{
+		const int N = (int)1e5 + 10;
+		int n = (int)rating.size();
+		int ans = 0;
+		int* tr1 = new int[N] {};
+		int* tr2 = new int[N] {};
+		Double_Tree_Array stock;
+		for (int i : rating)
+			stock.update(tr2, i, 1);
+		for (int i = 0; i < n; i++)
+		{
+			int t = rating[i];
+			stock.update(tr2, t, -1);
+			ans += stock.query(tr1, t - 1) * (stock.query(tr2, N - 1) - stock.query(tr2, t));
+			ans += (stock.query(tr1, N - 1) - stock.query(tr1, t)) * stock.query(tr2, t - 1);
+			stock.update(tr1, t, 1);
+		}
+		return ans;
+	}
+	//正常做法
+	int numTeams(vector<int>& rating) 
+	{
+		int n = (int)rating.size();
+		int ans = 0;
+		for (int j = 1; j < n - 1; j++)
+		{
+			int iless = 0, imore = 0;
+			int kless = 0, kmore = 0;
+			for (int i = 0; i < j; i++)
+			{
+				if (rating[i] > rating[j])
+					imore++;
+				else if (rating[i] < rating[j])
+					iless++;
+			}
+			for (int k = j + 1; k < n; k++)
+			{
+				if (rating[k] > rating[j])
+					kmore++;
+				else if (rating[k] < rating[j])
+					kless++;
+			}
+			ans += imore * kless + iless * kmore;
+		}
+		return ans;
+	}
+	//TEST_1395 end
+
+	//TEST_1375 start
+	int numTimesAllBlue(vector<int>& flips) 
+	{
+		int ans = 0;
+		int Max = INT_MIN;
+		for (int i = 0; i < (int)flips.size(); i++)
+		{
+			Max = max(Max, flips[i]);
+			if (Max == (i + 1))
+				ans++;
+		}
+		return ans;
+	}
+	//TEST_1375 end
+
 	//TEST_137 start
 	//woshishabi
 	int singleNumber(vector<int>& nums) 
