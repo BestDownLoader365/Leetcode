@@ -3,7 +3,6 @@
 int main()
 {
 	Solution test;
-	vector<int> a{1, 1, 1, 4, 4};
-	int b = 3;
-	test.findTargetSumWays_DP(a, 3);
+	vector<int> a{-2, 1, -3, 4, -1, 2, 1, -5, 4};
+	cout << test.maxSubArray(a) << endl;
 }

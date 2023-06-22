@@ -19,6 +19,7 @@
 #include <intrin.h>
 #include <bitset>
 #include <cstdint>
+#include <functional>
 using namespace std;
 // Definition for a binary tree node.
 class TreeNode {

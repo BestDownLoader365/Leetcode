@@ -6,6 +6,520 @@
 using namespace std;
 class Solution {
 public:
+	//TEST_16.19 start
+	//为了避免重复添加元素在队列，需要在添加队列的时候就标记visited，此处即为修改元素值为-1
+	vector<int> pondSizes(vector<vector<int>>& land) 
+	{
+		int row = (int)land.size();
+		int col = (int)land[0].size();
+		vector<vector<int>> dir{{-1, 0}, { 1, 0 }, { 0, 1 }, { 0, -1 }, { 1, 1 }, { 1, -1 }, { -1, 1 }, { -1, -1 }};
+		vector<int> ans;
+		
+		for (int i = 0; i < row; i++)
+		{
+			for (int j = 0; j < col; j++)
+			{
+				if (land[i][j] == 0)
+				{
+					queue<pair<int, int>> stock;
+					int curr = 0;
+					stock.push(make_pair(i, j));
+					land[i][j] = -1;
+					while (!stock.empty())
+					{
+						pair<int, int> a = stock.front();
+						stock.pop();
+						curr++;	
+						int dx, dy;
+						for (int i = 0; i < 8; i++)
+						{
+							dx = a.first + dir[i][0];
+							dy = a.second + dir[i][1];
+							if (dx >= 0 && dx < row && dy >= 0 && dy < col && land[dx][dy] == 0)
+							{
+								land[dx][dy] = -1;
+								stock.push(make_pair(dx, dy));
+							}
+						}
+					}
+					ans.push_back(curr);
+				}
+			}
+		}
+		sort(ans.begin(), ans.end());
+		return ans;
+	}
+	//TEST_16.19 end
+
+	//TEST_1143 start
+	int longestCommonSubsequence(string text1, string text2) 
+	{
+		int n1 = text1.length();
+		int n2 = text2.length();
+		vector<vector<int>>dp(n1 + 1, vector<int>(n2 + 1, 0));
+		for (int i = 1; i <= n1; i++)
+		{
+			char c1 = text1[i - 1];
+			for (int j = 1; j <= n2; j++)
+			{
+				char c2 = text2[j - 1];
+				if (c1 == c2)
+				{
+					dp[i][j] = dp[i - 1][j - 1] + 1;
+				}
+				else
+				{
+					dp[i][j] = max(dp[i - 1][j], dp[i][j - 1]);
+				}
+			}
+		}
+		return dp[n1][n2];
+	}
+	//TEST_1143 end
+
+	//TEST_53 start
+	//优化空间
+	int maxSubArray_SPACE(vector<int>& nums) 
+	{
+		int pre = 0, maxAns = nums[0];
+		for (const auto& x : nums) 
+		{
+			pre = max(pre + x, x);
+			maxAns = max(maxAns, pre);
+		}
+		return maxAns;
+	}
+	int maxSubArray(vector<int>& nums)
+	{
+		int n = (int)nums.size();
+		int ans = INT_MIN;
+		vector<int>dp(n);
+		dp[0] = nums[0];
+		for (int i = 1; i < n; i++)
+		{
+			dp[i] = max(dp[i - 1] + nums[i], nums[i]);
+		}
+		for (int i = 0; i < n; i++)
+		{
+			ans = max(ans, dp[i]);
+		}
+		return ans;
+	}
+	//TEST_53 end
+
+	//TEST_LCP_41 start
+	bool judge_41(vector<string>& chessboard, int x, int y, int dx, int dy)
+	{
+		while (x >= 0 && x < (int)chessboard.size() && y >= 0 && y < (int)chessboard[0].size())
+		{
+			if (chessboard[x][y] == '.')
+				return false;
+			if (chessboard[x][y] == 'X')
+				return true;
+			x += dx;
+			y += dy;
+		}
+		return false;
+	}
+
+	int BFS_41(vector<string> chessboard, int x, int y, vector<vector<int>>& dir)
+	{
+		int ans = 0;
+		queue<pair<int, int>> stock;
+		stock.emplace(make_pair(x, y));
+		while (!stock.empty())
+		{
+			pair<int, int> curr = stock.front();
+			stock.pop();
+			int dx, dy;
+			int currr = 0;
+			for (int i = 0; i < 8; i++)
+			{
+				dx = curr.first + dir[i][0];
+				dy = curr.second + dir[i][1];
+				if (judge_41(chessboard, dx, dy, dir[i][0], dir[i][1]))
+				{
+					while (chessboard[dx][dy] != 'X')
+					{
+						stock.emplace(make_pair(dx, dy));
+						chessboard[dx][dy] = 'X';
+						currr++;
+						dx += dir[i][0];
+						dy += dir[i][1];
+					}
+				}
+			}
+			ans += currr;
+		}
+		return ans;
+	}
+
+	int flipChess(vector<string>& chessboard) 
+	{
+		int ans = INT_MIN;
+		int row = (int)chessboard.size();
+		int col = (int)chessboard[0].size();
+		vector<vector<int>> dir{{-1, 0}, { 1, 0 }, { 0, 1 }, { 0, -1 }, { 1, 1 }, { 1, -1 }, { -1, 1 }, { -1, -1 }};
+
+		for (int i = 0; i < row; i++)
+		{
+			for (int j = 0; j < col; j++)
+			{
+				if (chessboard[i][j] == '.')
+				{
+					ans = max(ans, BFS_41(chessboard, i, j, dir));
+				}
+			}
+		}
+		return ans;
+	}
+	//TEST_LCP_41 end
+
+	//TEST_1595 start
+	//递推
+	int connectTwoGroups_DP(vector<vector<int>>& cost) 
+	{
+		int n = (int)cost.size(), m = (int)cost[0].size();
+		vector<int> min_cost(m, INT_MAX);
+		for (int j = 0; j < m; j++)
+			for (auto& c : cost)
+				min_cost[j] = min(min_cost[j], c[j]);
+
+		vector<vector<int>> f(n + 1, vector<int>(1ULL << m));
+		for (int j = 0; j < 1 << m; j++)
+			for (int k = 0; k < m; k++)
+				if (j >> k & 1) // 第二组的点 k 未连接
+					f[0][j] += min_cost[k]; // 去第一组找个成本最小的点连接
+
+		for (int i = 0; i < n; i++) {
+			for (int j = 0; j < 1 << m; j++) {
+				int res = INT_MAX;
+				for (int k = 0; k < m; k++) // 第一组的点 i 与第二组的点 k
+					res = min(res, f[i][j & ~(1 << k)] + cost[i][k]);
+				f[i + 1][j] = res;
+			}
+		}
+		return f[n][(1 << m) - 1];
+	}
+	//回溯
+	int connectTwoGroups(vector<vector<int>>& cost) 
+	{
+		int n = (int)cost.size(), m = (int)cost[0].size();
+		vector<int> min_cost(m, INT_MAX);
+		for (int j = 0; j < m; j++)
+			for (auto& c : cost)
+				min_cost[j] = min(min_cost[j], c[j]);
+
+		vector<vector<int>> memo(n, vector<int>(1ULL << m, INT_MAX));
+		function<int(int, int)> dfs = [&](int i, int j) -> int {
+			if (i < 0) {
+				int res = 0;
+				for (int k = 0; k < m; k++)
+					if (j >> k & 1) // 第二组的点 k 未连接
+						res += min_cost[k]; // 去第一组找个成本最小的点连接
+				return res;
+			}
+			int& res = memo[i][j]; // 注意这里是引用
+			if (res != INT_MAX) return res; // 之前算过了
+			for (int k = 0; k < m; k++) // 第一组的点 i 与第二组的点 k
+				res = min(res, dfs(i - 1, j & ~(1 << k)) + cost[i][k]);
+			return res;
+		};
+		return dfs(n - 1, (1 << m) - 1);
+	}
+	//TEST_1595 end
+
+	//TEST_662 start
+	void DFS_662(TreeNode* node, unsigned long long nodeIndex, unsigned long long& ans, int level, unordered_map<unsigned long long, unsigned long long>& stock)
+	{
+		if (node == nullptr)
+			return;
+		if (!stock.count(level))
+			stock[level] = nodeIndex;
+		ans = max(ans, nodeIndex - stock[level] + 1);
+		DFS_662(node->left, nodeIndex * 2, ans, level + 1, stock);
+		DFS_662(node->right, nodeIndex * 2 + 1, ans, level + 1, stock);
+	}
+
+	int widthOfBinaryTree(TreeNode* root) 
+	{
+		unsigned long long ans = 0;
+		unordered_map<unsigned long long, unsigned long long> stock;
+		DFS_662(root, 1, ans, 0, stock);
+		return (int)ans;
+	}
+	//TEST_662 end
+
+	//TEST_518 start
+	int change(int amount, vector<int>& coins) {
+		vector<int> dp(amount + 1, 0);
+		dp[0] = 1;
+		for (int i = 0; i < (int)coins.size(); i++) 
+		{ // 遍历物品
+			for (int j = coins[i]; j <= amount; j++) 
+			{ // 遍历背包
+				dp[j] += dp[j - coins[i]];
+				cout << dp[j] << " ";
+			}
+			cout << endl;
+		}
+		return dp[amount];
+	}
+	//TEST_518 end
+
+	//TEST_463 start
+	int islandPerimeter(vector<vector<int>>& grid) 
+	{
+		int row = (int)grid.size();
+		int col = (int)grid[0].size();
+		int ans = 0;
+		bool visited = 0;
+		queue<pair<int, int>> q;
+		vector<vector<bool>> pass(row, vector<bool>(col, 0));
+		for (int i = 0; i < row && !visited; i++)
+		{
+			for (int j = 0; j < col && !visited; j++)
+			{
+				if (grid[i][j])
+				{
+					visited = 1;
+					q.push(make_pair(i, j));
+					while (!q.empty())
+					{
+						int len = 4;
+						pair<int, int> curr = q.front();
+						q.pop();
+						if (pass[curr.first][curr.second])
+							continue;
+						pass[curr.first][curr.second] = 1;
+						int dx = curr.first + 1;
+						int dy = curr.second;
+						if (dx < row && grid[dx][dy])
+						{
+							if(!pass[dx][dy])
+								q.push(make_pair(dx, dy));
+							len--;
+						}
+						dx = curr.first - 1;
+						dy = curr.second;
+						if (dx >= 0 && grid[dx][dy])
+						{
+							if (!pass[dx][dy])
+								q.push(make_pair(dx, dy));
+							len--;
+						}
+						dx = curr.first;
+						dy = curr.second + 1;
+						if (dy < col && grid[dx][dy])
+						{
+							if (!pass[dx][dy])
+								q.push(make_pair(dx, dy));
+							len--;
+						}
+						dx = curr.first;
+						dy = curr.second - 1;
+						if (dy >= 0 && grid[dx][dy])
+						{
+							if (!pass[dx][dy])
+								q.push(make_pair(dx, dy));
+							len--;
+						}
+						cout << len << endl;
+						ans += len;
+					}
+				}
+			}
+		}
+		return ans;
+	}
+	//TEST_463 end
+
+	//TEST_200 start
+	void DFS_200(vector<vector<char>>& grid, int r, int c) 
+	{
+		int nr = (int)grid.size();
+		int nc = (int)grid[0].size();
+
+		grid[r][c] = '0';
+		if (r - 1 >= 0 && grid[r - 1][c] == '1') DFS_200(grid, r - 1, c);
+		if (r + 1 < nr && grid[r + 1][c] == '1') DFS_200(grid, r + 1, c);
+		if (c - 1 >= 0 && grid[r][c - 1] == '1') DFS_200(grid, r, c - 1);
+		if (c + 1 < nc && grid[r][c + 1] == '1') DFS_200(grid, r, c + 1);
+	}
+	int numIslands(vector<vector<char>>& grid) {
+		int nr = (int)grid.size();
+		if (!nr) return 0;
+		int nc = (int)grid[0].size();
+
+		int num_islands = 0;
+		for (int r = 0; r < nr; ++r) 
+		{
+			for (int c = 0; c < nc; ++c) 
+			{
+				if (grid[r][c] == '1') 
+				{
+					++num_islands;
+					DFS_200(grid, r, c);
+				}
+			}
+		}
+
+		return num_islands;
+	}
+	//TEST_200 end
+
+	//TEST_1254 start
+	int closedIsland(vector<vector<int>>& grid) 
+	{
+		int row = (int)grid.size();
+		int col = (int)grid[0].size();
+		int ans = 0;
+		vector<vector<bool>> visited(row, vector<bool>(col, 0));
+		for (int i = 1; i < row - 1; i++)
+		{
+			for (int j = 1; j < col - 1; j++)
+			{
+				if (!grid[i][j] && !visited[i][j])
+				{
+					queue<pair<int, int>> q;
+					q.push(make_pair(i, j));
+					bool close = 1;
+					while (!q.empty())
+					{
+						pair<int, int> a = q.front();
+						visited[a.first][a.second] = 1;
+						if (!grid[i][j] && (a.first == 0 || a.first == row - 1 || a.second == 0 || a.second == col - 1))
+							close = 0;
+						q.pop();
+						int dx = a.first + 1;
+						int dy = a.second;
+						if (dx >= 0 && dy >= 0 && dx < row && dy < col && !grid[dx][dy] && !visited[dx][dy])
+						{
+							q.push(make_pair(dx, dy));
+						}
+						dx = a.first - 1;
+						dy = a.second;
+						if (dx >= 0 && dy >= 0 && dx < row && dy < col && !grid[dx][dy] && !visited[dx][dy])
+						{
+							q.push(make_pair(dx, dy));
+						}
+						dx = a.first;
+						dy = a.second + 1;
+						if (dx >= 0 && dy >= 0 && dx < row && dy < col && !grid[dx][dy] && !visited[dx][dy])
+						{
+							q.push(make_pair(dx, dy));
+						}
+						dx = a.first;
+						dy = a.second - 1;
+						if (dx >= 0 && dy >= 0 && dx < row && dy < col && !grid[dx][dy] && !visited[dx][dy])
+						{
+							q.push(make_pair(dx, dy));
+						}
+					}
+					if (close)
+						ans++;
+				}
+			}
+		}
+		return ans;
+	}
+	//TEST_1254 end
+
+	//TEST_416 start
+	bool canPartition(vector<int>& nums) 
+	{
+		int target = 0;
+		int n = (int)nums.size();
+		for (int i : nums)
+			target += i;
+		if (target & 1)
+			return 0;
+		target /= 2;
+		
+		vector<bool> dp(target + 1, 0);
+		if (nums[0] <= target)
+			dp[nums[0]] = 1;
+		for (int i = 1; i < n; i++)
+		{
+			for (int j = target; j >= 0; j--)
+			{
+				if (nums[i] == j)
+					dp[j] = 1;
+				else if (nums[i] < j)
+					dp[j] = dp[j] || dp[j - nums[i]];
+			}
+		}
+		return dp[target];
+	}
+	//TEST_416 end
+
+	//TEST_322 start
+	//DP
+	int coinChange_DP(vector<int>& coins, int amount)
+	{
+		int Max = amount + 1;
+		vector<int> dp(amount + 1, Max);
+		dp[0] = 0;
+		for (int i = 1; i <= amount; ++i) 
+		{
+			for (int j = 0; j < (int)coins.size(); ++j) 
+			{
+				if (coins[j] <= i) 
+				{
+					dp[i] = min(dp[i], dp[i - coins[j]] + 1);
+				}
+			}
+		}
+		return dp[amount] > amount ? -1 : dp[amount];
+	}
+	//记忆化搜索？可能吧，但是超时了，麻痹
+	int DFS_322(vector<int> coins, int amount, int idx, vector<vector<int>>& cache)
+	{
+		if (idx < 0)
+		{
+			if (amount == 0)
+				return 0;
+			else
+				return 9999;
+		}
+		if (cache[idx][amount] != -1)
+			return cache[idx][amount];
+		if (amount < coins[idx])
+		{
+			cache[idx][amount] = DFS_322(coins, amount, idx - 1, cache);
+			return cache[idx][amount];
+		}
+		cache[idx][amount] = min(DFS_322(coins, amount, idx - 1, cache), DFS_322(coins, amount - coins[idx], idx, cache) + 1);
+		return cache[idx][amount];
+	}          
+
+	int coinChange(vector<int>& coins, int amount) 
+	{
+		int n = (int)coins.size();
+		vector<vector<int>> cache(n, vector<int>(amount + 1, -1));
+		int ans = DFS_322(coins, amount, n - 1, cache);
+		if (ans == 9999)
+			return -1;
+		return ans;
+	}
+	//TEST_322 end
+
+	//TEST_2481 start
+	int numberOfCuts(int n) 
+	{
+		if (n == 1)
+			return 0;
+		if (n & 1)
+		{
+			return n;
+		}
+		else
+		{
+			return n / 2;
+		}
+	}
+	//TEST_2481 end
+
 	//TEST_213 start
 	int rob_213(vector<int>& nums) 
 	{
