@@ -6,6 +6,209 @@
 using namespace std;
 class Solution {
 public:
+	//TEST_18 start
+	vector<vector<int>> fourSum(vector<int>& nums, int target)
+	{
+		sort(nums.begin(), nums.end());
+		vector<vector<int>> ans;
+		int n = (int)nums.size();
+
+		for (int i = 0; i < n - 3; i++)
+		{
+			if (i && nums[i] == nums[i - 1])
+				continue;
+			for (int j = i + 1; j < n - 2; j++)
+			{
+				if ((j - i - 1) && nums[j] == nums[j - 1])
+					continue;
+
+				int x = j + 1;
+				int y = n - 1;
+				long t1 = (long)nums[i] + (long)nums[j] + (long)nums[j + 1] + (long)nums[j + 2];
+				if (t1 > target)
+					break;
+				t1 = (long)nums[i] + (long)nums[j] + (long)nums[y - 1] + (long)nums[y];
+				if (t1 < target)
+					continue;
+				while (x < y)
+				{
+					long sum = (long)nums[i] + (long)nums[j] + (long)nums[x] + (long)nums[y];
+					if (sum > target)
+						y--;
+					else if (sum < target)
+						x++;
+					else
+					{
+						ans.push_back({ nums[i], nums[j], nums[x], nums[y] });
+						x++;
+						while (x < y && nums[x] == nums[x - 1])
+							x++;
+						y--;
+						while (x < y && nums[y] == nums[y + 1])
+							y--;
+					}
+				}
+
+			}
+		}
+		return ans;
+	}
+	//TEST_18 end
+
+	//TEST_371 start
+	int getSum(int a, int b) 
+	{
+		while (b != 0) {
+			unsigned int carry = (unsigned int)(a & b) << 1;
+			a = a ^ b;
+			b = (int)carry;
+		}
+		return a;
+	}
+	//TEST_371 end
+
+	//TEST_1234 start
+	int balancedString(string s) 
+	{
+		int cnt[4]{};
+		int length = (int)s.length();
+		int m = length / 4;
+		int left = 0;
+		int ans = INT_MAX;
+
+		for (int i = 0; i < length; i++)
+		{
+			if (s[i] == 'Q')
+				cnt[0]++;
+			else if (s[i] == 'W')
+				cnt[1]++;
+			else if (s[i] == 'E')
+				cnt[2]++;
+			else
+				cnt[3]++;
+		}
+		if (cnt[0] == m && cnt[1] == m && cnt[2] == m && cnt[3] == m)
+			return 0;
+
+		for (int right = 0; right < length; right++)
+		{
+			if (s[right] == 'Q')
+				cnt[0]--;
+			else if (s[right] == 'W')
+				cnt[1]--;
+			else if (s[right] == 'E')
+				cnt[2]--;
+			else
+				cnt[3]--;
+			while (cnt[0] <= m && cnt[1] <= m && cnt[2] <= m && cnt[3] <= m)
+			{
+				ans = min(ans, right - left + 1);
+				if (s[left] == 'Q')
+					cnt[0]++;
+				else if (s[left] == 'W')
+					cnt[1]++;
+				else if (s[left] == 'E')
+					cnt[2]++;
+				else
+					cnt[3]++;
+				left++;
+			}
+		}
+		return ans;
+	}
+	//TEST_1234 end
+
+	//TETS_1004 start
+	int longestOnes(vector<int>& nums, int k) 
+	{
+		int cnt0 = 0;
+		int left = 0;
+		int ans = INT_MIN;
+		int n = (int)nums.size();
+		for (int right = 0; right < n; right++)
+		{
+			cnt0 += 1 - nums[right];
+			while (cnt0 > k)
+			{
+				cnt0 -= 1 - nums[left];
+				left++;
+			}
+			ans = max(ans, right - left + 1);
+		}
+		return ans;
+	}
+	//TEST_1004 end
+
+	//TEST_485 start
+	int findMaxConsecutiveOnes(vector<int>& nums)
+	{
+		int judge = 1;
+		int length = 0;
+		int ans = INT_MIN;
+		for (int i = 0; i < (int)nums.size(); i++)
+		{
+			judge &= nums[i];
+			if (!judge)
+			{
+				judge = 1;
+				ans = max(ans, length);
+				length = 0;
+			}
+			else
+			{
+				length++;
+				ans = max(ans, length);
+			}
+		}
+		return ans;
+	}
+	//TEST_485 end
+
+	//TEST_713 start
+	int numSubarrayProductLessThanK(vector<int>& nums, int k) 
+	{
+		if (k <= 1)
+			return 0;
+		int n = (int)nums.size();
+		int l = 0;
+		int ans = 0;
+		int sum = 1;
+		for (int r = 0; r < n; r++)
+		{
+			sum *= nums[r];
+			while (sum >= k)
+			{
+				sum /= nums[l];
+				l++;
+			}
+			ans += r - l + 1;
+		}
+		return ans;
+	}
+	//TEST_713 end
+
+	//TEST_209 start
+	int minSubArrayLen(int target, vector<int>& nums) 
+	{
+		int n = (int)nums.size();
+		int l = 0;
+		int s = 0;
+		int ans = INT_MAX;
+		for (int r = 0; r < n; r++)
+		{
+			s += nums[r];
+			while (s - nums[l] >= target)
+			{
+				s -= nums[l];
+				l++;
+			}
+			if (s >= target)
+				ans = min(ans, r - l + 1);
+		}
+		return ans <= n ? ans : 0;
+	}
+	//TEST_209 end
+
 	//TEST_16.19 start
 	//为了避免重复添加元素在队列，需要在添加队列的时候就标记visited，此处即为修改元素值为-1
 	vector<int> pondSizes(vector<vector<int>>& land) 
@@ -54,8 +257,8 @@ public:
 	//TEST_1143 start
 	int longestCommonSubsequence(string text1, string text2) 
 	{
-		int n1 = text1.length();
-		int n2 = text2.length();
+		int n1 = (int)text1.length();
+		int n2 = (int)text2.length();
 		vector<vector<int>>dp(n1 + 1, vector<int>(n2 + 1, 0));
 		for (int i = 1; i <= n1; i++)
 		{

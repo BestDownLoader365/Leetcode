@@ -3,6 +3,6 @@
 int main()
 {
 	Solution test;
-	vector<int> a{-2, 1, -3, 4, -1, 2, 1, -5, 4};
-	cout << test.maxSubArray(a) << endl;
+	vector<int> a{0,0,0,0};
+	test.fourSum(a, 0);
 }
