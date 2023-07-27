@@ -6,6 +6,1889 @@
 using namespace std;
 class Solution {
 public:
+	//TEST_109 start
+	ListNode* midway(ListNode* left, ListNode* right)
+	{
+		ListNode* slow = left;
+		ListNode* fast = left;
+		while (fast->next != right && fast->next->next != right)
+		{
+			slow = slow->next;
+			fast = fast->next->next;
+		}
+		return slow;
+	}
+
+	TreeNode* dfs_109(ListNode* left_node, ListNode* right_node)
+	{
+		if (left_node == right_node)
+			return nullptr;
+		ListNode* mid_node = midway(left_node);
+
+		TreeNode* node = new TreeNode(mid_node->val);
+		node->left = dfs_109(left_node, mid_node);
+		node->right = dfs_109(mid_node->next, right_node);
+		return node;
+	}
+
+	TreeNode* sortedListToBST(ListNode* head) 
+	{
+		return dfs_109(head, nullptr);
+	}
+	//TEST_109 end
+
+	//TEST_108 start
+	TreeNode* dfs_108(vector<int>& nums, int p_left, int p_right)
+	{
+		if (p_left > p_right)
+			return NULL;
+		int mid = (p_right + p_left) / 2;
+		TreeNode* root = new TreeNode(nums[mid]);
+		root->left = dfs_108(nums, p_left, mid - 1);
+		root->right = dfs_108(nums, mid + 1, p_right);
+		return root;
+	}
+	TreeNode* sortedArrayToBST(vector<int>& nums)
+	{
+		int len = nums.size();
+		return dfs_108(nums, 0, len - 1);
+	}
+	//TEST_108 end
+
+	//TEST_107 start
+	vector<vector<int>> levelOrderBottom(TreeNode* root)
+	{
+		auto levelOrder = vector<vector<int>>();
+		if (!root)
+			return levelOrder;
+		queue<TreeNode*> q;
+		q.push(root);
+		while (!q.empty())
+		{
+			auto level = vector<int>();
+			int size = (int)q.size();
+			for (int i = 0; i < size; ++i)
+			{
+				auto node = q.front();
+				q.pop();
+				level.push_back(node->val);
+				if (node->left)
+					q.push(node->left);
+				if (node->right)
+					q.push(node->right);
+			}
+			levelOrder.push_back(level);
+		}
+		reverse(levelOrder.begin(), levelOrder.end());
+		return levelOrder;
+	}
+	//TEST_107 end
+
+	//TEST_106 start
+	TreeNode* myBuildTree_106(const vector<int>& postorder, const vector<int>& inorder, int postorder_left, int postorder_right, int inorder_left, int inorder_right, unordered_map<int, int>& index)
+	{
+		if (postorder_left > postorder_right)
+			return nullptr;
+
+		int postorder_root = postorder_right;
+		int inorder_root = index[postorder[postorder_root]];
+
+		TreeNode* root = new TreeNode(postorder[postorder_root]);
+		int size_left_subtree = inorder_root - inorder_left;
+		root->left = myBuildTree_106(postorder, inorder, postorder_left, postorder_left + size_left_subtree - 1, inorder_left, inorder_root - 1, index);
+		root->right = myBuildTree_106(postorder, inorder, postorder_left + size_left_subtree, postorder_right - 1, inorder_root + 1, inorder_right, index);
+		return root;
+	}
+
+	TreeNode* buildTree_106(vector<int>& inorder, vector<int>& postorder) 
+	{
+		int n = (int)postorder.size();
+		unordered_map<int, int> index;
+		for (int i = 0; i < n; i++)
+			index[inorder[i]] = i;
+		return myBuildTree_106(postorder, inorder, 0, n - 1, 0, n - 1, index);
+	}
+	//TEST_106 end
+
+	//TEST_105 start
+	TreeNode* myBuildTree(const vector<int>& preorder, const vector<int>& inorder, int preorder_left, int preorder_right, int inorder_left, int inorder_right, unordered_map<int, int>& index) 
+	{
+		if (preorder_left > preorder_right) 
+			return nullptr;
+
+		// 前序遍历中的第一个节点就是根节点
+		int preorder_root = preorder_left;
+		// 在中序遍历中定位根节点
+		int inorder_root = index[preorder[preorder_root]];
+
+		// 先把根节点建立出来
+		TreeNode* root = new TreeNode(preorder[preorder_root]);
+		// 得到左子树中的节点数目
+		int size_left_subtree = inorder_root - inorder_left;
+		// 递归地构造左子树，并连接到根节点
+		// 先序遍历中「从 左边界+1 开始的 size_left_subtree」个元素就对应了中序遍历中「从 左边界 开始到 根节点定位-1」的元素
+		root->left = myBuildTree(preorder, inorder, preorder_left + 1, preorder_left + size_left_subtree, inorder_left, inorder_root - 1, index);
+		// 递归地构造右子树，并连接到根节点
+		// 先序遍历中「从 左边界+1+左子树节点数目 开始到 右边界」的元素就对应了中序遍历中「从 根节点定位+1 到 右边界」的元素
+		root->right = myBuildTree(preorder, inorder, preorder_left + size_left_subtree + 1, preorder_right, inorder_root + 1, inorder_right, index);
+		return root;
+	}
+
+	TreeNode* buildTree(vector<int>& preorder, vector<int>& inorder) 
+	{
+		int n = (int)preorder.size();
+		unordered_map<int, int> index;
+		// 构造哈希映射，帮助我们快速定位根节点
+		for (int i = 0; i < n; ++i) 
+			index[inorder[i]] = i;
+		return myBuildTree(preorder, inorder, 0, n - 1, 0, n - 1, index);
+	}
+	//TEST_105 end
+
+	//TEST_2500 start
+	//我是傻逼，排列就可以了
+	int deleteGreatestValue_sorting(vector<vector<int>>& grid) 
+	{
+		int m = (int)grid.size(), n = (int)grid[0].size();
+		for (int i = 0; i < m; i++)
+			sort(grid[i].begin(), grid[i].end());
+		int res = 0;
+		for (int j = 0; j < n; j++) 
+		{
+			int mx = 0;
+			for (int i = 0; i < m; i++)
+				mx = max(mx, grid[i][j]);
+			res += mx;
+		}
+		return res;
+	}
+
+	int deleteGreatestValue(vector<vector<int>>& grid) 
+	{
+		int n = (int)grid.size();
+		int m = (int)grid[0].size();
+		int ans = 0;
+		for (int i = 0; i < m; i++)
+		{
+			int turn_max = -1;
+			for (int j = 0; j < n; j++)
+			{
+				int mx = -1;
+				int index = -1;
+				for (int k = 0; k < m; k++)
+				{
+					if (grid[j][k] > mx)
+					{
+						mx = grid[j][k];
+						index = k;
+					}
+				}
+				grid[j][index] = -1;
+				turn_max = max(mx, turn_max);
+			}
+			ans += turn_max;
+		}
+		return ans;
+	}
+	//TEST_2500 end
+
+	//TEST_28 start
+	int strStr(string s, string p) 
+	{
+		int n = (int)s.size(), m = (int)p.size();
+		for (int i = 0; i <= n - m; i++) 
+		{
+			int j = i, k = 0;
+			while (k < m and s[j] == p[k]) 
+			{
+				j++;
+				k++;
+			}
+			if (k == m) return i;
+		}
+		return -1;
+	}
+	//TEST_28 end
+
+	//TEST_9 start
+	//官方题解
+	bool isPalindrome_Official(int x)
+	{
+		// 特殊情况：
+		// 如上所述，当 x < 0 时，x 不是回文数。
+		// 同样地，如果数字的最后一位是 0，为了使该数字为回文，
+		// 则其第一位数字也应该是 0
+		// 只有 0 满足这一属性
+		if (x < 0 || (x % 10 == 0 && x != 0))
+			return false;
+
+		int revertedNumber = 0;
+		while (x > revertedNumber)
+		{
+			revertedNumber = revertedNumber * 10 + x % 10;
+			x /= 10;
+		}
+	}
+	bool isPalindrome(int x) 
+	{
+		string t = to_string(x);
+		string s = t;
+		reverse(t.begin(), t.end());
+		return s == t;
+	}
+	//TEST_9 end
+
+	//TEST_300 start
+	//动态规划
+	int lengthOfLIS_DP(vector<int>& nums)
+	{
+		int n = (int)nums.size();
+		vector<int> dp(n);
+		for (int i = 0; i < n; i++)
+		{
+			for (int j = 0; j < i; j++)
+			{
+				if (nums[j] < nums[i])
+					dp[i] = max(dp[i], dp[j]);
+			}
+			dp[i]++;
+		}
+		return *max_element(dp.begin(), dp.end());
+	}
+
+	//递归，记忆化搜索
+	int lengthOfLIS(vector<int>& nums)
+	{
+		int n = (int)nums.size();
+		vector<int> memo(n, -1);
+		function<int(int)> dfs = [&](int i) -> int
+		{
+			int res = 0;
+			if (memo[i] != -1)
+				return memo[i];
+			for (int index = i - 1; index >= 0; index--)
+			{
+				if (nums[index] < nums[i])
+					res = max(res, dfs(index));
+
+			}
+			return memo[i] = res + 1;
+		};
+		int ans = 1;
+		for (int i = n - 1; i > 0; i--)
+			ans = max(ans, dfs(i));
+		return ans;
+	}
+	//TEST_300 end
+
+	//TEST_97 start
+	//动态规划学不明白，暂时就不抄答案
+	bool isInterleave(string s1, string s2, string s3) 
+	{
+
+	}
+	//TEST_97 end
+
+	//TEST_1458 start
+	int maxDotProduct(vector<int>& nums1, vector<int>& nums2) 
+	{
+		int n = (int)nums1.size();
+		int m = (int)nums2.size();
+
+		vector<vector<int>> dp(n, vector<int>(m));
+		for (int i = 0; i < n; i++)
+		{
+			for (int j = 0; j < m; j++)
+			  {
+				int t = nums1[i] * nums2[j];
+				if (i > 0)
+					dp[i][j] = max(t, dp[i - 1][j]);
+				if (j > 0)
+					dp[i][j] = max(t, dp[i][j - 1]);
+				if(i > 0 && j > 0)
+				dp[i][j] = max(t, t + dp[i - 1][j - 1]);
+			}
+		}
+		return dp[n - 1][m - 1];
+	}
+	//TEST_1458 end
+
+	//TEST_712 start
+	int minimumDeleteSum(string s1, string s2) 
+	{
+		int m = (int)s1.size();
+		int n = (int)s2.size();
+		vector<vector<int>> dp(m + 1, vector<int>(n + 1));
+		int s = 0;
+		for (int i = 1; i < m + 1; i++)
+		{
+			s += s1[i - 1];
+			dp[i][0] = s;
+		}
+		s = 0;
+		for (int i = 1; i < n + 1; i++)
+		{
+			s += s2[i - 1];
+			dp[0][i] = s;
+		}
+
+		for (int i = 1; i < m + 1; i++)
+		{
+			char c1 = s1[i - 1];
+			for (int j = 1; j < n + 1; j++)
+			{
+				char c2 = s2[j - 1];
+				if (c1 == c2)
+					dp[i][j] = dp[i - 1][j - 1];
+				else
+				{	
+					dp[i][j] = min(dp[i - 1][j] + s1[i - 1], dp[i][j - 1] + s2[j - 1]);
+				}
+			}
+		}
+		return dp[m][n];
+	}
+	//TEST_712 end
+
+	//TEST_583 start
+	//动态规划
+	int minDistance_DP(string word1, string word2) 
+	{
+
+		int m = (int)word1.size();
+		int n = (int)word2.size();
+		vector<vector<int>> dp(m + 1, vector<int>(n + 1));
+
+		for (int i = 1; i <= m; i++) 
+		{
+			char c1 = word1[i - 1];
+			for (int j = 1; j <= n; j++) 
+			{
+				char c2 = word2[j - 1];
+				if (c1 == c2) 
+					dp[i][j] = dp[i - 1][j - 1] + 1;
+				else
+					dp[i][j] = max(dp[i - 1][j], dp[i][j - 1]);
+			}
+		}
+		int lcs = dp[m][n];
+		return m - lcs + n - lcs;
+	}
+
+	//递归
+	int minDistance(string word1, string word2) 
+	{
+		int n = (int)word1.length();
+		int m = (int)word2.length();
+		vector<vector<int>> memo(n + 1, vector<int>(m + 1, -1));
+
+		function<int(int, int)> dfs = [&](int i, int j) -> int
+		{
+			if (i < 0 || j < 0)
+				return 0;
+			int& res = memo[i][j];
+			if (res != -1)
+				return res;
+			if (word1[i] == word2[j])
+				return res = dfs(i - 1, j - 1) + 1;
+			return res = max(dfs(i - 1, j), dfs(i, j - 1));
+		};
+		int lcm = dfs(n - 1, m - 1);
+		return n + m - 2 * lcm;
+	}
+	//TEST_583 end
+
+	//TEST_72 start
+	//暂时不写答案
+	int minDistance_72(string word1, string word2) 
+	{
+		int n = (int)word1.length();
+		int m = (int)word2.length();
+		vector<vector<int>> mee(n + 1, vector<int>(m + 1, -1));
+	}
+	//TEST_72 end
+
+	//TEST_301 start
+	bool isValid_301(string str)
+	{
+		int count = 0;
+		for (char c : str) 
+		{
+			if (c == '(') 
+				count++;
+			else if (c == ')') 
+			{
+				count--;
+				if (count < 0) 
+					return false;
+			}
+		}
+
+		return count == 0;
+	}
+
+	vector<string> removeInvalidParentheses(string s) 
+	{
+		vector<string> ans;
+		unordered_set<string> currSet;
+
+		currSet.insert(s);
+		while (true) 
+		{
+			for (auto& str : currSet) 
+			{
+				if (isValid_301(str))
+					ans.emplace_back(str);
+			}
+			if (ans.size() > 0) 
+				return ans;
+			unordered_set<string> nextSet;
+			for (auto& str : currSet) 
+			{
+				for (int i = 0; i < (int)str.size(); i++) 
+				{
+					if (i > 0 && str[i] == str[i - 1]) 
+						continue;
+					if (str[i] == '(' || str[i] == ')') 
+						nextSet.insert(str.substr(0, i) + str.substr(i + 1, str.size()));
+				}
+			}
+			currSet = nextSet;
+		}
+	}
+	//TEST_301 end
+
+	//TEST_20 start
+	bool isValid(string s) 
+	{
+		stack<char> st;
+		for (int i = 0; i < (int)s.length(); i++)
+		{
+			if (s[i] == '(' || s[i] == '[' || s[i] == '{')
+				st.push(s[i]);
+			else
+			{
+				if (s[i] == ')')
+				{
+					if (st.empty() || st.top() != '(')
+						return false;
+					else
+						st.pop();
+				}
+				else if (s[i] == ']')
+				{
+					if (st.empty() || st.top() != '[')
+						return false;
+					else
+						st.pop();
+				}
+				else
+				{
+					if (st.empty() || st.top() != '{')
+						return false;
+					else
+						st.pop();
+				}
+			}
+		}
+		if (st.empty())
+			return true;
+		else
+			return false;
+	}
+	//TEST_20 end
+
+	//TEST_2208 start
+	int halveArray(vector<int>& nums)
+	{
+		priority_queue<double> q(nums.begin(), nums.end());
+		double sum = accumulate(nums.begin(), nums.end(), 0.0);
+		double sum2 = 0;
+		int ans = 0;
+		while (sum2 < sum / 2)
+		{
+			double t = q.top();
+			q.pop();
+			double t2 = t / 2;
+			sum2 += t2;
+			q.push(t2);
+			ans++;
+		}
+		return ans;
+	}
+	//TEST_2208 end
+
+	//TEST_6942 start
+	//理解了，但是自己是绝对不可能会做出来的，后面再练习
+	long long countPalindromePaths(vector<int>& parent, string s) 
+	{
+		int n = (int)s.length();
+		vector<vector<pair<int, int>>> g(n);
+		for (int i = 1; i < n; i++)
+		{
+			int bit = 1 << (s[i] - 'a');
+			g[parent[i]].push_back(make_pair(i, bit));
+		}
+
+		long long ans = 0;
+		unordered_map<int, int> cnt;
+
+		function<void(int, int)> dfs_6942 = [&](int v, int Xor)
+		{
+			ans += cnt[Xor];
+			for (int i = 0; i < 26; i++)
+				ans += cnt[Xor ^ (1 << i)];
+			cnt[Xor]++;
+			
+			for (int i = 0; i < (int)g[v].size(); i++)
+				dfs_6942(g[v][i].first, g[v][i].second ^ Xor);
+		};
+		dfs_6942(0, 0);
+		return ans;
+	}
+	//TEST_6942 end
+
+	//TEST_6955 start
+	int maxIncreasingGroups(vector<int>& usageLimits) 
+	{
+		sort(usageLimits.begin(), usageLimits.end());
+		long long ans = 0, s = 0;
+		for (int i = 0; i < (int)usageLimits.size(); i++)
+		{
+			s += usageLimits[i];
+			if (s >= (ans + 2) * (ans + 1) / 2)
+				ans++;
+		}
+		return (int)ans;
+	}
+	//TEST_6955 end
+
+	//TEST_6915 start
+	long long maxArrayValue(vector<int>& nums) 
+	{
+		int i = (int)nums.size() - 1;
+		long long sum;
+		while (i >= 0)
+		{
+			sum = nums[i];
+			i--;
+			while (i >= 0 && nums[i] <= sum)
+			{
+				sum += nums[i];
+				i--;
+			}
+		}
+		return sum;
+	}
+	//TEST_6915 end
+
+	//TEST_216 start
+	void dfs_216(int t, int n, int k, vector<vector<int>>& ans, vector<int>& path)
+	{
+		int d = k - (int)path.size();
+		if (t < 0 || t > (n * 2 - d + 1) * d / 2)
+			return;
+		if (path.size() == k)
+		{
+			ans.push_back(path);
+			return;
+		}
+		for (int i = n; i >= d; i--)
+		{
+			path.push_back(i);
+			dfs_216(t - i, i - 1, k, ans, path);
+			path.pop_back();
+		}
+	}
+
+
+	vector<vector<int>> combinationSum3(int k, int n) 
+	{
+		vector<vector<int>> ans;
+		vector<int> path;
+		dfs_216(n, 9, k, ans, path);
+		return ans;
+	}
+	//TEST_216 end
+
+	//TEST_77 start
+	void dfs_77(int n, int k, vector<vector<int>>& ans, vector<int>& path)
+	{
+		int d = k - (int)path.size();
+		if (path.size() == k)
+		{
+			ans.push_back(path);
+			return;
+		}
+		for (int i = n; i >= d; i--)
+		{
+			path.push_back(i);
+			dfs_77(i - 1, k, ans, path);
+			path.pop_back();
+		}
+	}
+
+	vector<vector<int>> combine(int n, int k) 
+	{
+		vector<vector<int>> ans;
+		vector<int> path;
+		dfs_77(n, k, ans, path);
+		return ans;
+	}
+	//TEST_77 end
+
+	//TEST_2698 start
+	int PRE_SUM_2698[1001];
+	void initial()
+	{
+		for (int i = 1; i <= 1000; i++) 
+		{
+			auto s = to_string(i * i);
+			int n = (int)s.length();
+			function<bool(int, int)> dfs = [&](int p, int sum) -> bool 
+			{
+				if (p == n)  // 递归终点
+					return sum == i; // i 符合要求
+				int x = 0;
+				for (int j = p; j < n; j++) 
+				{ // 从 s[p] 到 s[j] 组成的子串
+					x = x * 10 + int(s[j] - '0'); // 对应的整数值
+					if (dfs(j + 1, sum + x))
+						return true;
+				}
+				return false;
+			};
+			PRE_SUM_2698[i] = PRE_SUM_2698[i - 1] + (dfs(0, 0) ? i * i : 0);
+		}
+	}
+
+	int punishmentNumber(int n) 
+	{
+		return PRE_SUM_2698[n];
+	}
+	//TEST_2698 end
+
+	//TEST_6921
+	vector<string> splitWordsBySeparator(vector<string>& words, char separator) 
+	{
+		vector<string> ans;
+		for (int i = 0; i < (int)words.size(); i++)
+		{
+			string cur = words[i];
+			int start = 0;
+			int end = 0;
+			while (end != cur.length())
+			{
+				if (cur[end] == separator && (end - start) > 0)
+				{
+					ans.push_back(cur.substr(start, end - start));
+					start = end + 1;
+				}
+				else if (cur[end] == separator)
+				{
+					start = end + 1;
+				}
+				end++;
+			}
+			if ((end - start) > 0)
+				ans.push_back(cur.substr(start, end - start));
+		}
+		return ans;
+	}
+	//TEST_6921
+	// 
+	//TEST_306 start
+	bool isAdditiveNumber(string num) 
+	{
+		//这道题比较困难，这哪是没理解哈哈哈操
+		return false;
+	}
+	//TEST_306 end
+
+	//TEST_2397 start
+	void dfs_2397(int idx, vector<vector<int>>& matrix, int numSelect, int& ans, vector<bool>& cover)
+	{
+	
+		if (numSelect == 0 || idx == (int)matrix[0].size())
+		{
+			int temp = 0;
+			for (int i = 0; i < (int)matrix.size(); i++)
+			{
+				bool canAdd = true;
+				for (int j = 0; j < (int)matrix[0].size(); j++)
+				{
+					if (matrix[i][j] && !cover[j])
+					{
+						canAdd = false;
+						break;
+					}
+				}
+				if (canAdd)
+					temp++;
+			}
+			ans = max(ans, temp);
+			return;
+		}
+
+		dfs_2397(idx + 1, matrix, numSelect, ans, cover);
+
+		cover[idx] = true;
+		dfs_2397(idx + 1, matrix, numSelect - 1, ans, cover);
+		cover[idx] = false;
+	}
+
+	int maximumRows(vector<vector<int>>& matrix, int numSelect) 
+	{
+		int ans = -1;
+		vector<bool> cover(matrix[0].size(), false);
+		dfs_2397(0, matrix, numSelect, ans, cover);
+		return ans;
+	}
+	//TEST_2397 end
+
+	//TEST_1601 start
+	void dfs_1601(int index, int n, vector<vector<int>>& requests, int& ans, vector<int>& number, int cnt)
+	{
+		
+		bool temp_ans = true;
+		for (int i : number)
+		{
+			if (i != 0)
+			{
+				temp_ans = false;
+				break;
+			}
+		}
+		if (temp_ans)
+			ans = max(ans, cnt);
+
+		if (index == (int)requests.size())
+			return;
+
+		dfs_1601(index + 1, n, requests, ans, number, cnt);
+		number[requests[index][0]]++;
+		number[requests[index][1]]--;
+		dfs_1601(index + 1, n, requests, ans, number, cnt + 1);
+		number[requests[index][0]]--;
+		number[requests[index][1]]++;
+	}
+
+	int maximumRequests(int n, vector<vector<int>>& requests) 
+	{
+		vector<int> number(n, 0);
+		int ans = -1;
+		int cnt = 0;
+		dfs_1601(0, n, requests, ans, number, cnt);
+		return ans;
+	}
+	//TEST_1601 end
+
+	//TEST_784 start
+	//按照选与不选的角度考虑
+	void dfs_784_choose(int index, int length, vector<string>& ans, string s)
+	{
+		if (index == length)
+		{
+			ans.push_back(s);
+			return;
+		}
+
+		dfs_784(index + 1, length, ans, s);
+		if (isalpha(s[index]))
+		{
+			s[index] ^= (1 << 5);
+			dfs_784(index + 1, length, ans, s);
+		}
+	}
+
+	vector<string> letterCasePermutation_choose(string s)
+	{
+		int n = (int)s.length();
+		vector<string> ans;
+		dfs_784(0, n, ans, s);
+		return ans;
+	}
+
+	//按照答案的角度考虑
+	void dfs_784(int index, int length, vector<string>& ans, string s)
+	{
+		ans.push_back(s);
+		if (index == length)
+		{
+			return;
+		}
+
+		for (int i = index; i < length; i++)
+		{
+			if (isalpha(s[i]))
+			{
+
+				s[i] ^= (1 << 5);//如何大小写转换，因为字母a和A在ASCII表中相差32位，所以只需要异或第6位就可以完成转换
+				dfs_784(i + 1, length, ans, s);
+				s[i] ^= (1 << 5);
+			}
+		}
+	}
+
+	vector<string> letterCasePermutation(string s) 
+	{
+		int n = (int)s.length();
+		vector<string> ans;
+		dfs_784(0, n, ans, s);
+		return ans;
+	}
+	//TEST_784 end
+
+	//TEST_17 start
+	void dfs_17(int index, int length, vector<string> stock, vector<string>& ans, string temp, string digits)
+	{
+		if (index == length)
+		{
+			ans.push_back(temp);
+			return;
+		}
+		for (char c : stock[digits[index] - '0'])
+		{
+			temp += c;
+			dfs_17(index + 1, length, stock, ans, temp, digits);
+			temp.pop_back();
+		}
+
+	}
+
+	vector<string> letterCombinations(string digits)
+	{
+		int n = (int)digits.length();
+		if (n == 0)
+			return {};
+		vector<string> stock{"", "", "abc", "def", "ghi", "jkl", "mno", "pqrs", "tuv", "wxyz"};
+		vector<string> ans;
+		string temp = "";
+		dfs_17(0, n, stock, ans, temp, digits);
+		return ans;
+	}
+	//TEST_17 end
+
+	//TEST_513 start
+	int findBottomLeftValue_leftToright(TreeNode* root)
+	{
+		queue<TreeNode*> q;
+		q.push(root);
+		int ans;
+		while (!q.empty())
+		{
+			int sz = (int)q.size();
+			ans = q.front()->val;
+			while (sz != 0)
+			{
+				TreeNode* node = q.front();
+				q.pop();
+				if (node->left)
+					q.push(node->left);
+				if (node->right)
+					q.push(node->right);
+				sz--;
+			}
+		}
+		return ans;
+	}
+
+	int findBottomLeftValue(TreeNode* root)
+	{
+		queue<TreeNode*> q;
+		q.push(root);
+		TreeNode* node;
+		while (!q.empty())
+		{
+			q.front()->val;
+			node = q.front();
+			q.pop();
+			if (node->right)
+				q.push(node->right);
+			if (node->left)
+				q.push(node->left);
+		}
+		return node->val;
+	}
+	//TEST_513 end
+
+	//TEST_103 start
+	vector<vector<int>> zigzagLevelOrder(TreeNode* root) 
+	{
+		vector<vector<int>> ret;
+		if (!root)
+			return ret;
+		bool isEven = false;
+		queue <TreeNode*> q;
+		q.push(root);
+		while (!q.empty())
+		{
+			int currentLevelSize = (int)q.size();
+			ret.push_back(vector<int>());
+			for (int i = 1; i <= currentLevelSize; ++i)
+			{
+				auto node = q.front(); q.pop();
+				if (isEven)
+					ret.back().insert(ret.back().begin(), node->val);
+				else
+					ret.back().push_back(node->val);
+				if (node->left) q.push(node->left);
+				if (node->right) q.push(node->right);
+			}
+			isEven = !isEven;
+		}
+
+		return ret;
+	}
+	//TEST_103 end
+
+	//TEST_102 start
+	vector<vector<int>> levelOrder(TreeNode* root) 
+	{
+		vector<vector<int>> ret;
+		if (!root)
+			return ret;
+
+		queue <TreeNode*> q;
+		q.push(root);
+		while (!q.empty()) 
+		{
+			int currentLevelSize = (int)q.size();
+			ret.push_back(vector<int>());
+			for (int i = 1; i <= currentLevelSize; ++i) 
+			{
+				auto node = q.front(); q.pop();
+				ret.back().push_back(node->val);
+				if (node->left) q.push(node->left);
+				if (node->right) q.push(node->right);
+			}
+		}
+
+		return ret;
+	}
+	//TEST_102 end
+
+	//TEST_235 start
+	TreeNode* lowestCommonAncestor_235(TreeNode* root, TreeNode* p, TreeNode* q) 
+	{
+		int x = root->val;
+		if (p->val < x && q->val < x)
+			return lowestCommonAncestor_235(root->left, p, q);
+		if (p->val > x && q->val > x)
+			return lowestCommonAncestor_235(root->right, p, q);
+		return root;
+
+	}
+	//TEST_235 end
+
+	//TEST_236 start
+	TreeNode* lowestCommonAncestor(TreeNode* root, TreeNode* p, TreeNode* q)
+	{
+		if (!root || root == p || root == q)
+			return root;
+		TreeNode* left = lowestCommonAncestor(root->left, p, q);
+		TreeNode* right = lowestCommonAncestor(root->right, p, q);
+
+		if (left && right)
+			return root;
+		if (left)
+			return left;
+		return right;
+	}
+	//TEST_236 end
+
+	//TEST_700 start
+	TreeNode* searchBST(TreeNode* root, int val)
+	{
+		if (root == nullptr)
+			return nullptr;
+		if (val == root->val)
+			return root;
+		return searchBST(val < root->val ? root->left : root->right, val);
+	}
+	//TEST_700 end
+
+	//TEST_530 start
+	void dfs_530(TreeNode* node, int& pre, int& ans)
+	{
+		if (!node)
+			return;
+		
+		dfs_530(node->left, pre, ans);
+		ans = min(ans, node->val - pre);
+		pre = node->val;
+		dfs_530(node->right, pre, ans);
+	}
+
+	int getMinimumDifference(TreeNode* root) 
+	{
+		int ans = INT_MAX;
+		int pre = INT_MIN;
+		dfs_530(root, pre, ans);
+		return ans;
+	}
+	//TEST_530 end
+
+	//TEST_501 start
+	void inOrder(TreeNode* node, int& pre, int& curTime, int& maxTime, vector<int>& ans)
+	{
+		if (!node)
+			return;
+		inOrder(node->left, pre, curTime, maxTime, ans);
+		if (pre == node->val)
+			curTime++;
+		else
+			curTime = 1;
+		if (curTime > maxTime)
+		{
+			ans.clear();
+			maxTime = curTime;
+			ans.push_back(node->val);
+		}
+		else if (curTime == maxTime)
+		{
+			ans.push_back(node->val);
+		}
+
+		pre = node->val;
+		inOrder(node->right, pre, curTime, maxTime, ans);
+	}
+
+	vector<int> findMode(TreeNode* root)
+	{
+		vector<int> ans;
+		int pre = -1;
+		int curTime = 1;
+		int maxTime = 0;
+		inOrder(root, pre, curTime, maxTime, ans);
+		return ans;
+	}
+	//TEST_501 end
+
+	//TEST_230 start
+	int kthSmallest(TreeNode* root, int k) 
+	{
+		stack<TreeNode*> stack;
+		while (root != nullptr || stack.size() > 0) 
+		{
+			while (root != nullptr) 
+			{
+				stack.push(root);
+				root = root->left;
+			}
+			root = stack.top();
+			stack.pop();
+			--k;
+			if (k == 0) 
+			{
+				break;
+			}
+			root = root->right;
+		}
+		return root->val;
+	}
+	//TEST_230 end
+
+	//TEST_1372 start
+	void dfs_1372(TreeNode* node, bool direction, int& ans, int len)
+	{
+		ans = max(ans, len);
+		if (!direction)
+		{
+			if (node->left)
+				dfs_1372(node->left, 1, ans, len + 1);
+			if (node->right)
+				dfs_1372(node->right, 0, ans, 1);
+		}
+		else
+		{
+			if (node->left)
+				dfs_1372(node->left, 1, ans, 1);
+			if (node->right)
+				dfs_1372(node->right, 0, ans, len + 1);
+		}
+	}
+
+	int longestZigZag(TreeNode* root) 
+	{
+		if (!root)
+			return 0;
+		int maxAns = 0;
+		dfs_1372(root, 0, maxAns, 0);
+		dfs_1372(root, 1, maxAns, 0);
+		return maxAns;
+	}
+	//TEST_1372 end
+
+	//TEST_1080 start
+	TreeNode* dfs_1080(TreeNode* node, int s, int limit)
+	{
+		if (!node)
+			return nullptr;
+		if (!node->left && !node->right)
+		{
+			if (s + node->val < limit)
+				return nullptr;
+			return node;
+		}
+
+		TreeNode* left = dfs_1080(node->left, s + node->val, limit);
+		TreeNode* right = dfs_1080(node->right, s + node->val, limit);
+		node->left = left;
+		node->right = right;
+		if (!left && !right)
+			return nullptr;
+		return node;
+	}
+
+	TreeNode* sufficientSubset(TreeNode* root, int limit) 
+	{
+		return dfs_1080(root, 0, limit);
+	}
+	//TEST_1080 end
+
+	//TEST_1026 start
+	void real_1026(TreeNode* node, int mx, int min, int& ans)
+	{
+		if (!node)
+			return;
+		if (node->val > mx)
+			mx = node->val;
+		if (node->val < min)
+			min = node->val;
+		real_1026(node->left, mx, min, ans);
+		real_1026(node->right, mx, min, ans);
+
+		ans = max(ans, abs(mx - min));
+	}
+
+	int maxAncestorDiff(TreeNode* root) 
+	{
+		int max = INT_MIN;
+		int min = INT_MAX;
+		int ans = 0;
+		real_1026(root, max, min, ans);
+		return ans;
+	}
+	//TEST_1026 end
+
+	//TEST_226 start
+	TreeNode* invertTree(TreeNode* root) 
+	{
+		if (!root)
+			return nullptr;
+		TreeNode* left = invertTree(root->left);
+		TreeNode* right = invertTree(root->right);
+
+		root->left = right;
+		root->right = left;
+
+		return root;
+	}
+	//TEST_226 end
+
+	//TEST_199 start
+	void dfs_199(TreeNode* node, int depth, vector<int>& ans)
+	{
+		if (!node)
+			return;
+		if (depth == ans.size())
+			ans.push_back(node->val);
+		dfs_199(node->right, depth + 1, ans);
+		dfs_199(node->left, depth + 1, ans);
+	}
+
+	vector<int> rightSideView(TreeNode* root) 
+	{
+		int ans = 0;
+		vector<int> temp;
+		dfs_199(root, 0, temp);
+		return temp;
+	}
+	//TEST_199 end
+
+	//TEST_110 start
+	int dfs_110(TreeNode* node)
+	{
+		if (!node)
+			return 0;
+		int left = dfs_110(node->left);
+		if (left == -1)
+			return -1;
+		int right = dfs_110(node->right);
+
+		if (right == -1 || abs(left - right) > 1)
+			return -1;
+		return max(left, right) + 1;
+	}
+
+	bool isBalanced(TreeNode* root) 
+	{
+		if (dfs_110(root) == -1)
+			return false;
+		return true;
+	}
+	//TEST_110 end
+
+	//TEST_101 start
+	bool isSameTree_101(TreeNode* p, TreeNode* q)
+	{
+		if (!p || !q)
+			return p == q;
+		return p->val == q->val && isSameTree_101(p->left, q->right) && isSameTree_101(p->right, q->left);
+	}
+
+	bool isSymmetric(TreeNode* root) 
+	{
+		return isSameTree_101(root->left, root->right);
+	}
+	//TEST_101 end
+
+	//TEST_100 start
+	bool isSameTree(TreeNode* p, TreeNode* q) 
+	{
+		if (!p || !q)
+			return p == q;
+		return p->val == q->val && isSameTree(p->left, q->left) && isSameTree(p->right, q->right);
+	}
+	//TEST_100 end
+
+	//TEST_129 start
+	void dfs_129(TreeNode* node, int& temp, int& ans)
+	{
+		if (!node)
+			return;
+		if (!node->left && !node->right)
+		{
+			temp = temp * 10 + node->val;
+			ans += temp;
+			temp /= 10;
+		}
+		int t = temp * 10 + node->val;
+		dfs_129(node->left, t, ans);
+		dfs_129(node->right, t, ans);
+	}
+
+	int sumNumbers(TreeNode* root) 
+	{
+		int temp = 0;
+		int ans = 0;
+		dfs_129(root, temp, ans);
+		return ans;
+	}
+	//TEST_129 end
+
+	//TEST_113 start
+	void dfs_113(TreeNode* root, int targetSum, vector<int>& temp, vector<vector<int>>& ans)
+	{
+		if (!root)
+			return;
+		if (root->val == targetSum && !root->left && !root->right)
+		{
+			temp.push_back(root->val);
+			ans.push_back(temp);
+			temp.pop_back();
+		}
+
+		temp.push_back(root->val);
+		dfs_113(root->left, targetSum - root->val, temp, ans);
+		temp.pop_back();
+		temp.push_back(root->val);
+		dfs_113(root->right, targetSum - root->val, temp, ans);
+		temp.pop_back();
+	}
+
+	vector<vector<int>> pathSum(TreeNode* root, int targetSum)
+	{
+		vector<int> temp;
+		vector<vector<int>> ans;
+		dfs_113(root, targetSum, temp, ans);
+		return ans;
+	}
+	//TEST_113 end
+
+	//TEST_112 start
+	bool hasPathSum(TreeNode* root, int targetSum) 
+	{
+		if (!root)
+			return false;
+		if (root->val == targetSum && !root->left && !root->right)
+			return true;
+
+		return hasPathSum(root->left, targetSum - root->val) || hasPathSum(root->right, targetSum - root->val);
+	}
+	//TEST_112 end
+
+	//TEST_111 start
+	int minDepth(TreeNode* root)
+	{
+		if (!root)
+			return 0;
+		if (!root->left && !root->right)
+			return 1;
+		int left = minDepth(root->left);
+		int right = minDepth(root->right);
+		if (left == 0)
+			return right + 1;
+		if (right == 0)
+			return left + 1;
+
+		return min(left, right) + 1;
+	}
+	//TEST_111 end
+
+	//TEST_104 start
+	int maxDepth(TreeNode* root) 
+	{
+		if (!root)
+			return 0;
+		int left = maxDepth(root->left);
+		int right = maxDepth(root->right);
+		return max(left, right) + 1;
+	}
+	//TEST_104 end
+
+	//TEST_203 start
+	ListNode* removeElements(ListNode* head, int val) 
+	{
+		ListNode* dummy = new ListNode(-1, head);
+		ListNode* cur = dummy;
+		
+		while (cur->next)
+		{
+			if (cur->next->val == val)
+			{
+				ListNode* temp = cur->next;
+				cur->next = cur->next->next;
+				delete temp;
+			}
+			else
+				cur = cur->next;
+		}
+		return dummy->next;
+	}
+	//TEST_203 end
+
+	//TEST_82 start
+	ListNode* deleteDuplicates_82(ListNode* head) 
+	{
+		ListNode* dummy = new ListNode(-1);
+		dummy->next = head;
+		ListNode* cur = dummy;
+
+		while (cur->next && cur->next->next)
+		{
+			int val = cur->next->val;
+			if (val == cur->next->next->val)
+			{
+				while (cur->next && cur->next->val == val)
+				{
+					ListNode* temp = cur->next;
+					cur->next = cur->next->next;
+					delete temp;
+				}
+			}
+			else
+				cur = cur->next;
+		}
+		return dummy->next;
+	}
+	//TEST_82 end
+
+	//TEST_83 start
+	ListNode* deleteDuplicates_memory(ListNode* head)
+	{
+		if (!head)
+			return head;
+		ListNode* slow = head;
+		ListNode* fast = head->next;
+
+		while (fast)
+		{
+			while (fast && slow->val == fast->val)
+			{
+				ListNode* temp = fast;
+				fast = fast->next;
+				delete temp;
+			}
+			slow->next = fast;
+			slow = slow->next;
+			if (fast)
+				fast = fast->next;
+		}
+		return head;
+	}
+
+	ListNode* deleteDuplicates(ListNode* head) 
+	{
+		if (!head)
+			return head;
+		ListNode* cur = head;
+
+		while (cur->next)
+		{		
+			if (cur->next->val == cur->val)
+				cur->next = cur->next->next;
+			else
+				cur = cur->next;
+		}
+		return head;
+	}
+	//TEST_83 end
+
+	//TEST_237 start
+	void deleteNode(ListNode* node) 
+	{
+		node->val = node->next->val;
+		node->next = node->next->next;
+	}
+	//TEST_237 end
+
+	//TEST_234 start
+	ListNode* reverseList_234(ListNode* node)
+	{
+		ListNode* pre = nullptr;
+		ListNode* cur = node;
+		while (cur)
+		{
+			ListNode* nxt = cur->next;
+			cur->next = pre;
+			pre = cur;
+			cur = nxt;
+		}
+		return pre;
+	}
+
+	ListNode* middle_234(ListNode* node)
+	{
+		ListNode* slow = node;
+		ListNode* fast = node;
+		while (fast && fast->next)
+		{
+			slow = slow->next;
+			fast = fast->next->next;
+		}
+		return slow;
+	}
+
+	bool isPalindrome(ListNode* head) 
+	{
+		ListNode* mid = middle_234(head);
+		ListNode* head2 = reverseList_234(mid);
+		while (head != mid)
+		{
+			if (head->val != head2->val)
+				return false;
+			head = head->next;
+			head2 = head2->next;
+		}
+		return true;
+	}
+	//TEST_234 end
+
+	//TEST_143 start
+	ListNode* reverseList_143(ListNode* node)
+	{
+		ListNode* pre = nullptr;
+		ListNode* cur = node;
+		while (cur)
+		{
+			ListNode* nxt = cur->next;
+			cur->next = pre;
+			pre = cur;
+			cur = nxt;
+		}
+		return pre;
+	}
+
+	ListNode* middle_143(ListNode* node)
+	{
+		ListNode* slow = node;
+		ListNode* fast = node;
+		while (fast && fast->next)
+		{
+			slow = slow->next;
+			fast = fast->next->next;
+		}
+		return slow;
+	}
+
+	void reorderList(ListNode* head) 
+	{
+		ListNode* mid = middle_143(head);
+		ListNode* head2 = reverseList_143(mid);
+		while (head2->next)
+		{
+			ListNode* nxt = head->next;
+			ListNode* nxt2 = head2->next;
+			head->next = head2;
+			head2->next = nxt;
+			head = nxt;
+			head2 = nxt2;
+		}
+	}
+	//TEST_143 end
+
+	//TEST_142 start
+	ListNode* detectCycle(ListNode* head) 
+	{
+		ListNode* slow = head;
+		ListNode* fast = head;
+		while (fast && fast->next)
+		{
+			slow = slow->next;
+			fast = fast->next->next;
+			if (fast == slow)
+			{
+				while (slow != head)
+				{
+					slow = slow->next;
+					head = head->next;
+				}
+			}
+			return slow;
+		}
+		return nullptr;
+	}
+	//TEST_142 end
+
+	//TEST_141 start
+	bool hasCycle(ListNode* head) 
+	{
+		ListNode* slow = head;
+		ListNode* fast = head;
+		while (fast && fast->next)
+		{
+			slow = slow->next;
+			fast = fast->next->next;
+			if (fast == slow)
+				return true;
+		}
+		return false;
+	}
+	//TEST_141 end
+
+	//TEST_445 start
+	ListNode* reverseList_445(ListNode* node)
+	{
+		ListNode* pre = nullptr;
+		ListNode* cur = node;
+		while (cur)
+		{
+			ListNode* nxt = cur->next;
+			cur->next = pre;
+			pre = cur;
+			cur = nxt;
+		}
+		return pre;
+	}
+	ListNode* add_445(ListNode* node1, ListNode* node2)
+	{
+		ListNode* dummy = new ListNode(-1);
+		ListNode* cur = dummy;
+		int carry = 0;
+		while (node1 || node2 || carry)
+		{
+			if (node1)
+				carry += node1->val;
+			if (node2)
+				carry += node2->val;
+			ListNode* temp = new ListNode(carry % 10);
+			cur->next = temp;
+			cur = cur->next;
+			carry /= 10;
+			if (node1)
+				node1 = node1->next;
+			if (node2)
+				node2 = node2->next;
+		}
+		return dummy->next;
+	}
+
+	ListNode* addTwoNumbers_445(ListNode* l1, ListNode* l2) 
+	{
+		l1 = reverseList_445(l1);
+		l2 = reverseList_445(l2);
+
+		return reverseList_445(add_445(l1, l2));
+	}
+	//TEST_445 end
+
+	//TEST_24 start
+	ListNode* swapPairs(ListNode* head) 
+	{
+		//小小偷懒
+		return reverseKGroup(head, 2);
+	}
+	//TEST_24 end
+
+	//TEST_25 start
+	ListNode* reverseKGroup(ListNode* head, int k) 
+	{
+		int n = 0;
+		ListNode* cur = head;
+		while (cur)
+		{
+			n++;
+			cur = cur->next;
+		}
+
+		ListNode* dummy = new ListNode(-1, head);
+		ListNode* p0 = dummy;
+		
+		while (n >= k)
+		{
+			n -= k;
+			ListNode* pre;
+			ListNode* cur = p0->next;
+			for (int i = 0; i < k; i++)
+			{
+				ListNode* nxt = cur->next;
+				cur->next = pre;
+				pre = cur;
+				cur = nxt;
+			}
+			ListNode* nxt = p0->next;
+			p0->next->next = cur;
+			p0->next = pre;
+			p0 = nxt;
+		}
+		return dummy->next;
+	}
+	//TEST_25 end
+
+	//TEST_92 start
+	ListNode* reverseBetween(ListNode* head, int left, int right)
+	{
+		ListNode* dummy = new ListNode(-1, head);
+		ListNode* p0 = dummy;
+		for (int i = 0; i < left - 1; i++)
+		{
+			p0 = p0->next;
+		}
+
+		ListNode* pre;
+		ListNode* cur = p0->next;
+		for (int i = 0; i < right - left + 1; i++)
+		{
+			ListNode* nxt = cur->next;
+			cur->next = pre;
+			pre = cur;
+			cur = nxt;
+		}
+		p0->next->next = cur;
+		p0->next = pre;
+		return dummy->next;
+	}
+	//TEST_92 end
+
+	//TEST_154 start
+	int findMin_154(vector<int>& nums)
+	{
+		int left = 0, right = (int)nums.size() - 1;
+		while (left <= right)
+		{
+			int mid = left + (right - left) / 2;
+			if (nums[mid] < nums[right]) right = mid;
+			else if (nums[mid] > nums[right]) left = mid + 1;
+			else --right;
+		}
+		return nums[left];
+	}
+	//TEST_154 end
+
+	//TEST_81 start
+	bool search_81(vector<int>& nums, int target) 
+	{
+		int n = (int)nums.size();
+		int left = 0;
+		int right = n - 1;
+		int mid = left + (right - left) / 2;
+
+		while (left <= right)
+		{
+			mid = left + (right - left) / 2;
+			if (nums[mid] == target)
+				return true;
+			if (nums[left] == nums[mid])
+			{
+				left++;
+				continue;
+			}
+			if (nums[right] == nums[mid])
+			{
+				right--;
+				continue;
+			}
+			if (nums[0] <= nums[mid])
+			{
+				if (nums[0] <= target && target < nums[mid])
+				{
+					right = mid - 1;
+				}
+				else
+				{
+					left = mid + 1;
+				}
+			}
+			else
+			{
+				if (nums[mid] < target && target <= nums[n - 1])
+				{
+					left = mid + 1;
+				}
+				else
+				{
+					right = mid - 1;
+				}
+			}
+		}
+		return false;
+	}
+	//TEST_81 end
+
+	//TEST_33 start
+	int search_33(vector<int>& nums, int target) 
+	{
+		int n = (int)nums.size();
+		int left = 0;
+		int right = n - 1;
+		int mid = left + (right - left) / 2;
+
+		while (left <= right)
+		{
+			mid = left + (right - left) / 2;
+			if (nums[mid] == target)
+				return mid;
+			if (nums[0] <= nums[mid])
+			{
+				if (nums[0] <= target && target < nums[mid]) 
+				{
+					right = mid - 1;
+				}
+				else 
+				{
+					left = mid + 1;
+				}
+			}
+			else
+			{
+				if (nums[mid] < target && target <= nums[n - 1]) 
+				{
+					left = mid + 1;
+				}
+				else 
+				{
+					right = mid - 1;
+				}
+			}
+		}
+		return -1;
+	}
+	//TEST_33 end
+
+	/*TEST_979 start
+	tuple<int, int, int> getSum_979(TreeNode* node)
+	{
+		if (node == nullptr)
+			return { 0, 0, 0 };
+		auto [coin1, node1, ans1] = getSum_979(node->left);
+		auto [coin2, node2, ans2] = getSum_979(node->right);
+		int temp = abs(coin1 + coin2 + node->val - node1 - node2 - 1);
+
+		return { coin1 + coin2 + node->val, node1 + node2 + 1, temp + ans1 + ans2 };
+	}
+
+	int distributeCoins(TreeNode* root)
+	{
+		return get<2>(getSum_979(root));
+	}
+	TEST_979 end*/
+
+	//TEST_153 start
+	int findMin(vector<int>& nums) 
+	{
+		int n = (int)nums.size();
+		int first = nums[0];
+		int left = 0, right = n - 1, mid = left + (int)floor((right - left) / 2);
+		while (left <= right)
+		{
+			if (nums[mid] >= first)
+				left = mid + 1;
+			else
+				right = mid - 1;
+			mid = left + (int)floor((right - left) / 2);
+		}
+		if (left == n)
+			return first;
+		return nums[left];
+	}
+	//TEST_153 end
+
+	//TEST_162 start
+	int findPeakElement(vector<int>& nums) 
+	{
+		int n = (int)nums.size();
+		int left = 0, right = n - 1;
+		while (left < right)
+		{
+			int mid = (left + right) >> 1;
+			if (nums[mid] > nums[mid + 1])
+				right = mid;
+			else
+				left = mid + 1;
+		}
+		return right;
+	}
+	//TEST_162 end
+	
+	//TEST_34 start
+	int lower_bound_34(vector<int>& nums, int target)
+	{
+		int left = 0;
+		int right = (int)nums.size() - 1;
+		while (left <= right)
+		{
+			int mid = left + (int)floor((right - left) / 2);
+			if (nums[mid] < target)
+				left = mid + 1;
+			else
+				right = mid - 1;
+		}
+		return left;
+	}
+	vector<int> searchRange(vector<int>& nums, int target) 
+	{
+		int start = lower_bound_34(nums, target);
+		if (start == (int)nums.size() || nums[start] != target)
+			return { -1, -1 };
+		int end = lower_bound_34(nums, target + 1) - 1;
+		return { start, end };
+	}
+	//TEST_34 end
+
+	//TEST_611 start
+	int triangleNumber(vector<int>& nums) 
+	{
+		int n = (int)nums.size();
+		sort(nums.begin(), nums.end());
+		int ans = 0;
+		for (int i = 0; i < n; ++i) 
+		{
+			int k = i;
+			for (int j = i + 1; j < n; ++j) 
+			{
+				while (k + 1 < n && nums[k + 1] < nums[i] + nums[j]) 
+				{
+					++k;
+				}
+				ans += max(k - j, 0);
+			}
+		}
+		return ans;
+	}
+	//TEST_611 end
+
 	//TEST_18 start
 	vector<vector<int>> fourSum(vector<int>& nums, int target)
 	{

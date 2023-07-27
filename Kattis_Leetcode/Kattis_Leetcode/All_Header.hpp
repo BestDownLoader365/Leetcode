@@ -1,6 +1,7 @@
 #ifndef ALL_HEAD
 #define ALL_HEAD
 
+#include <numeric>
 #include <iostream>
 #include <list>
 #include <vector>

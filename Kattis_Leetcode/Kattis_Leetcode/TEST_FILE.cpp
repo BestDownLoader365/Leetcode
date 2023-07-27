@@ -3,6 +3,8 @@
 int main()
 {
 	Solution test;
-	vector<int> a{0,0,0,0};
-	test.fourSum(a, 0);
+
+	vector<int> a{2,3,7,9,3};
+
+	
 }

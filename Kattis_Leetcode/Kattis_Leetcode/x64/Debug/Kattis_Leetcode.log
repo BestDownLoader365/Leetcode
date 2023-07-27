@@ -1,3 +1,5 @@
 ﻿  All_TEST_In_One.hpp
+D:\Tools\MSVS_Workspace\Leetcode\Kattis_Leetcode\Kattis_Leetcode\All_TEST_In_One.hpp(20,13): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
   TEST_FILE.cpp
+D:\Tools\MSVS_Workspace\Leetcode\Kattis_Leetcode\Kattis_Leetcode\ALL_TEST_In_One.hpp(20,13): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
   Kattis_Leetcode.vcxproj -> D:\Tools\MSVS_Workspace\Leetcode\Kattis_Leetcode\x64\Debug\Kattis_Leetcode.exe
