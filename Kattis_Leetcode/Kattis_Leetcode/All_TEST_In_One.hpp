@@ -6,6 +6,1594 @@
 using namespace std;
 class Solution {
 public:
+	//TEST_1617 start
+	vector<int> countSubgraphsForEachDiameter(int n, vector<vector<int>>& edges) 
+	{
+
+	}
+	//TEST_1617 end
+
+	//TEST_687 start
+	int longestUnivaluePath(TreeNode* root)
+	{
+		int ans = 0;
+		function<int(TreeNode*)> dfs = [&](TreeNode* node) -> int
+		{
+			if (!node)
+				return -1;
+			int left = dfs(node->left) + 1;
+			int right = dfs(node->right) + 1;
+			if (node->left && node->left->val != node->val)
+				left = 0;
+			if (node->right && node->right->val != node->val)
+				right = 0;
+			ans = max(ans, left + right);
+			return max(left, right);
+		};
+		dfs(root);
+		return ans;
+	}
+	//TEST_687 end
+
+	//TEST_2381 start
+	string shiftingLetters(string s, vector<vector<int>>& shifts) 
+	{
+		int n = (int)s.length();
+		vector<int> diff(n);
+		for (int i = 0; i < n; i++)
+		{
+			diff[i] = s[i] - 'a';
+		}
+		for (int i = n - 1; i > 0; i--)
+		{
+			diff[i] -= diff[i - 1];
+		}
+		for (int i = 0; i < (int)shifts.size(); i++)
+		{
+			int start = shifts[i][0];
+			int end = shifts[i][1];
+			if (shifts[i][2] == 0)
+			{
+				diff[start] -= 1;
+				if (end + 1 != n)
+					diff[end] += 1;
+			}
+			else
+			{
+				diff[start] += 1;
+				if (end + 1 != n)
+					diff[end] -= 1;
+			}
+		}
+		for (int i = 1; i < n; i++)
+		{
+			diff[i] += diff[i - 1];
+		}
+		for (int i = 0; i < n; i++)
+		{
+			if (diff[i] < 0)
+			{
+				while (diff[i] < 0)
+					diff[i] += 26;
+			}
+			if (diff[i] > 25)
+			{
+				while (diff[i] > 25)
+					diff[i] -= 26;
+			}
+		}
+		string ans = "";
+		for (int i = 0; i < n; i++)
+		{
+			ans += char(diff[i] + 'a');
+		}
+		return ans;
+	}
+	//TEST_2381 end
+
+	//TEST_1109 start
+	vector<int> corpFlightBookings(vector<vector<int>>& bookings, int n) 
+	{
+		vector<int> diff(n + 1);
+		for (int i = 0; i < (int)bookings.size(); i++)
+		{
+			int first = bookings[i][0];
+			int last = bookings[i][1];
+			int seats = bookings[i][2];
+			diff[first] += seats;
+			if ((last + 1) != n + 1)
+				diff[last + 1] -= seats;
+		}
+		for (int i = 1; i < n + 1; i++)
+		{
+			diff[i] += diff[i - 1];
+		}
+		diff.erase(diff.begin());
+		return diff;
+	}
+	//TEST_1109 end
+
+	//TEST_1094 start
+	bool carPooling(vector<vector<int>>& trips, int capacity) 
+	{
+		vector<int> diff(1001);
+		int n = (int)trips.size();
+		for (int i = 0; i < n; i++)
+		{
+			int passenger = trips[i][0];
+			int from = trips[i][1];
+			int to = trips[i][2];
+			diff[from] += passenger;
+			diff[to] -= passenger;
+		}
+		for (int i = 1; i < 1001; i++)
+		{
+			diff[i] += diff[i - 1];
+		}
+		for (int i = 0; i < 1001; i++)
+		{
+			if (diff[i] > capacity)
+				return false;
+		}
+		return true;
+	}
+	//TEST-1094 end
+
+	//TEST_2251 start
+	vector<int> fullBloomFlowers(vector<vector<int>>& flowers, vector<int>& people) 
+	{
+		int n = (int)flowers.size();
+		vector<int> start(n);
+		vector<int> endd(n);
+		vector<int> ans;
+		for (int i = 0; i < n; i++)
+		{
+			start[i] = flowers[i][0];
+			endd[i] = flowers[i][1];
+		}
+		sort(start.begin(), start.end());
+		sort(endd.begin(), endd.end());
+
+		for (int i = 0; i < (int)people.size(); i++)
+		{
+			int target = people[i];
+			int left = 0;
+			int right = n - 1;
+			while (left <= right)
+			{
+				int mid = left + (right - left) / 2;
+				if (start[mid] > target)
+					right = mid - 1;
+				else
+					left = mid + 1;
+			}
+			int answer = left;
+			left = 0;
+			right = n - 1;
+			while (left <= right)
+			{
+				int mid = left + (right - left) / 2;
+				if (endd[mid] >= target)
+					right = mid - 1;
+				else
+					left = mid + 1;
+			}
+			ans.push_back(answer - left);
+		}
+		return ans;
+	}
+	//TEST_2251 end
+
+	//TEST_2246 start
+	int longestPath(vector<int>& parent, string s) 
+	{
+		int n = (int)parent.size();
+		vector<vector<int>> tree(n);
+		for (int i = 1; i < n; i++)
+		{
+			tree[parent[i]].push_back(i);
+		}
+		int ans = 0;
+		function<int(int)> dfs = [&](int x) -> int
+		{
+			int len_1 = 0;
+			for (int i = 0; i < (int)tree[x].size(); i++)
+			{
+				int len_2 = dfs(tree[x][i]) + 1;
+				if (s[x] != s[tree[x][i]])
+				{
+					ans = max(ans, len_1 + len_2);
+					len_1 = max(len_1, len_2);
+				}
+			}
+			return len_1;
+		};
+		dfs(0);
+		return ans + 1;
+	}
+	//TEST_2246 end
+
+	//TEST_124 start
+	int maxPathSum(TreeNode* root) 
+	{
+		int ans = INT_MIN;
+		function<int(TreeNode*)> dfs = [&](TreeNode* node) -> int
+		{
+			if (!node)
+				return 0;
+			int left = dfs(node->left);
+			int right = dfs(node->right);
+			ans = max(ans, left + right + node->val);
+			return max(max(left, right) + node->val, 0);
+		};
+		dfs(root);
+		return ans;
+	}
+	//TEST_124 end
+
+	//TEST_543 start
+	int diameterOfBinaryTree(TreeNode* root) 
+	{
+		int ans = 0;
+		function<int(TreeNode*)> dfs = [&](TreeNode* node) -> int
+		{
+			if (!node)
+				return -1;
+			int left = dfs(node->left);
+			int right = dfs(node->right);
+			ans = max(ans, left + right + 2);
+			return max(left, right) + 1;
+		};
+		dfs(root);
+		return ans;
+	}
+	//TEST_543 end
+
+	//TEST_100030 start
+	
+	//TEST_100030 end
+
+	//TEST_8049 start
+	bool isReachableAtTime(int sx, int sy, int fx, int fy, int t) 
+	{
+		int dx = abs(sx - fx);
+		int dy = abs(sy - fy);
+		int diff = dx - dy;
+		if (dx == 0 && dy == 0 && t == 1)
+			return false;
+		if (diff > 0)
+		{
+			return t >= dx;
+		}
+		return t >= dy;
+	}
+	//TEST_8049 end
+
+	//TEST_8029 start
+	int numberOfPoints(vector<vector<int>>& nums)
+	{
+		int arr[101]{};
+		int ans = 0;
+		for (vector<int> a : nums)
+		{
+			for (int i = a[0]; i <= a[1]; i++)
+			{
+				arr[i]++;
+			}
+		}
+		for (int i = 1; i < 101; i++)
+		{
+			if (arr[i] > 0)
+			{
+				ans++;
+			}
+		}
+		return ans;
+	}
+	//TEST_8029 end
+
+	//TEST_1000 start
+	int mergeStones(vector<int>& stones, int k) 
+	{
+
+	}
+	//TEST_1000 end
+
+	//TEST_1547 start
+	int minCost(int n, vector<int>& cuts) 
+	{
+		sort(cuts.begin(), cuts.end());
+		cuts.insert(cuts.begin(), 0);
+		cuts.push_back(n);
+		int m = (int)cuts.size();
+		vector<vector<int>> f(m, vector<int>(m));
+		for(int i = m - 1; i >= 0; i--)
+		{
+			for (int j = i + 1; j < m; j++)
+			{
+				int ans = INT_MAX;
+				for (int k = i + 1; k < j; k++)
+				{
+					ans = min(ans, f[i][k] + f[k][j] + cuts[j] - cuts[i]);
+				}
+				if (ans == INT_MAX)
+					ans = 0;
+				f[i][j] = ans;
+			}
+		}
+		return f[0][m - 1];
+		//排序做法
+		/*sort(cuts.begin(), cuts.end());
+		cuts.insert(cuts.begin(), 0);
+		cuts.push_back(n);
+		int m = (int)cuts.size();
+		vector<vector<int>> map(m + 1, vector<int>(m + 1, -1));
+		function<int(int, int)> dfs = [&](int i, int j) -> int
+		{
+
+			if (map[i][j] != -1)
+				return map[i][j];
+			int ans = INT_MAX;
+			for (int k = i + 1; k < j; k++)
+			{
+				ans = min(ans, dfs(i, k) + dfs(k, j) + cuts[j] - cuts[i]);
+			}
+			if (ans == INT_MAX)
+				ans = 0;
+			map[i][j] = ans;
+			return ans;
+		};
+		return dfs(0, m - 1);
+		//记忆化搜索
+		vector<bool> visited(m);
+		int m = (int)cuts.size();
+		vector<vector<int>> map(n + 1, vector<int>(n + 1, -1));
+		function<int(int, int)> dfs = [&](int i, int j) -> int
+		{
+			if (map[i][j] != -1)
+				return map[i][j];
+			if (i + 1 >= j)
+				return 0;
+			int ans = INT_MAX;
+			for (int k = 0; k < m; k++)
+			{
+				if (!visited[k] && cuts[k] > i && cuts[k] < j)
+				{
+					visited[k] = true;
+					ans = min(ans, dfs(i, cuts[k]) + dfs(cuts[k], j) + j - i);
+					visited[k] = false;
+				}
+			}
+			if (ans == INT_MAX)
+				ans = 0;
+			map[i][j] = ans;
+			return ans;
+		};
+		return dfs(0, n);*/
+	}
+	//TEST_1547 end
+
+	//TEST_1771 start
+	int longestPalindrome(string word1, string word2) 
+	{
+		string s = word1 + word2;
+		int n = (int)word1.length();
+		int m = (int)word2.length();
+		int k = n + m;
+		int ans = 0;
+		vector<int> f(k);
+		for (int i = 0; i < k; i++)
+		{
+			f[i] = 1;
+		}
+		for (int i = k - 1; i >= 0; i--)
+		{
+			int pre = 0;
+			for (int j = i + 1; j < k; j++)
+			{
+				int tmp = f[j];
+				if (s[i] == s[j])
+				{
+					f[j] = pre + 2;
+					if (i < n && j >= n)
+					{
+						ans = max(ans, f[j]);
+					}
+				}
+				else
+				{
+					f[j] = max(f[j], f[j - 1]);
+				}
+				pre = tmp;
+			}
+		}
+		return ans;
+	}
+	//TEST_1771 end
+
+	//TEST_1312 start
+	int minInsertions_区间DP(string s)
+	{
+		int n = (int)s.length();
+		vector<int> f(n + 1);
+		for (int i = n - 1; i >= 0; i--)
+		{
+			char a = s[i];
+			int pre = 0;
+			for (int j = i + 1; j < n; j++)
+			{
+				char b = s[j];
+				int tmp = f[j + 1];
+				if (a == b)
+				{
+					f[j + 1] = pre;
+				}
+				else
+				{
+					f[j + 1] = min(f[j + 1], f[j]) + 1;
+				}
+				pre = tmp;
+			}
+		}
+		return f[n];
+	}
+
+	int minInsertions(string s)
+	{
+		int n = (int)s.length();
+		string Os = s;
+		reverse(s.begin(), s.end());
+		vector<int> f(n + 1);
+
+		for (int i = 0; i < n; i++)
+		{
+			char a = s[i];
+			int pre = 0;
+			for (int j = 0; j < n; j++)
+			{
+				char b = Os[j];
+				int tmp = f[j + 1];
+				if (a == b)
+				{
+					f[j + 1] = pre + 1;
+				}
+				else
+				{
+					f[j + 1] = max(f[j], f[j + 1]);
+				}
+				pre = tmp;
+			}
+		}
+		return n - f[n];
+	}
+	//TEST_1312 end
+
+	//TEST_1388 start
+	int calculate(const vector<int>& slices) 
+	{
+		int N = (int)slices.size(), n = (N + 1) / 3;
+		vector<vector<int>> dp(N, vector<int>(n + 1, INT_MIN));
+		dp[0][0] = 0;
+		dp[0][1] = slices[0];
+		dp[1][0] = 0;
+		dp[1][1] = max(slices[0], slices[1]);
+		for (int i = 2; i < N; i++) {
+			dp[i][0] = 0;
+			for (int j = 1; j <= n; j++) {
+				dp[i][j] = max(dp[i - 1][j], dp[i - 2][j - 1] + slices[i]);
+			}
+		}
+		return dp[N - 1][n];
+	}
+
+	int maxSizeSlices(vector<int>& slices) {
+		vector<int> v1(slices.begin() + 1, slices.end());
+		vector<int> v2(slices.begin(), slices.end() - 1);
+		int ans1 = calculate(v1);
+		int ans2 = calculate(v2);
+		return max(ans1, ans2);
+	}
+	//TEST_1388 end
+
+	//TEST_375 start
+	int getMoneyAmount(int n)
+	{
+		// vector<vector<int>> map(n + 1, vector<int>(n + 1, -1));
+		// function<int(int, int)> dfs = [&](int i, int j)
+		// {
+		//     if(map[i][j] != -1)
+		//         return map[i][j];
+		//     if(i + 1 == j)
+		//         return i;
+		//     if(i == j)
+		//         return 0;
+		//     int res = INT_MAX;
+		//     for(int k = i + 1; k < j; k++)
+		//     {
+		//         res = min(res, max(dfs(i, k - 1), dfs(k + 1, j)) + k);
+		//     }
+		//     map[i][j] = res;
+		//     return res;
+		// };
+		// return dfs(1, n);
+
+		vector<vector<int>> f(n + 1, vector<int>(n + 1));
+		for (int i = n - 1; i >= 1; i--)
+		{
+			for (int j = i + 1; j < n + 1; j++)
+			{
+				int res = INT_MAX;
+				if (i + 1 == j)
+				{
+					f[i][j] = i;
+					continue;
+				}
+				for (int k = i + 1; k < j; k++)
+				{
+					res = min(res, max(f[i][k - 1], f[k + 1][j]) + k);
+				}
+				f[i][j] = res;
+			}
+		}
+		return f[1][n];
+	}
+	//TEST_375 end
+
+	//TEST_1039 start
+	int minScoreTriangulation(vector<int>& values) 
+	{
+		int n = (int)values.size();
+
+		/*vector<vector<int>> map(n, vector<int>(n, -1));
+		function<int(int, int)> dfs = [&](int i, int j) ->int
+		{
+			if (map[i][j] != -1)
+				return map[i][j];
+			if (i + 1 == j)
+				return 0;
+			int res = INT_MAX;
+			for (int k = i + 1; k < j; k++)
+			{
+				res = min(res, dfs(i, k) + dfs(k, j) + values[i] * values[j] * values[k]);
+			}
+			map[i][j] = res;
+			return res;
+		};
+		return dfs(0, n - 1);*/
+
+		vector<vector<int>> dp(n, vector<int>(n));
+		for (int i = n - 3; i >= 0; i--)
+		{
+			for (int j = i + 2; j < n; j++)
+			{
+				int res = INT_MAX;
+				for (int k = i + 1; k < j; k++)
+				{
+					res = min(res, dp[i][k] + dp[k][j] + values[i] * values[j] * values[k]);
+				}
+				dp[i][j] = res;
+			}
+		}
+		return dp[0][n - 1];
+	}
+	//TEST_1039 end
+
+	//TEST_874 start
+	int robotSim(vector<int>& commands, vector<vector<int>>& obstacles)
+	{
+		vector<int> pos = { 0, 0 };
+		vector<vector<int>> dir = { {0, 1}, {1, 0}, {0, -1}, {-1, 0} };
+		int direction = 0;
+		unordered_map<long, bool> map;
+		int ans = 0;
+		for (vector<int> a : obstacles)
+		{
+			map[a[0] * 600001 + a[1]] = true;
+		}
+		for (int i = 0; i < (int)commands.size(); i++)
+		{
+			if (commands[i] == -1)
+			{
+				direction++;
+				if (direction > 3)
+					direction = 0;
+			}
+			else if (commands[i] == -2)
+			{
+				direction--;
+				if (direction < 0)
+					direction = 3;
+			}
+			else
+			{
+				while (commands[i])
+				{
+					commands[i]--;
+					pos[0] += dir[direction][0];
+					pos[1] += dir[direction][1];
+					if (map[pos[0] * 600001 + pos[1]])
+					{
+						pos[0] -= dir[direction][0];
+						pos[1] -= dir[direction][1];
+						break;
+					}
+				}
+				ans = max(ans, pos[0] * pos[0] + pos[1] * pos[1]);
+			}
+		}
+		return ans;
+	}
+	//TEST_874 end
+
+	//TEST_1108 start
+	string defangIPaddr(string address) 
+	{
+		string ans = "";
+		for (int i = 0; i < (int)address.length(); i++)
+		{
+			address[i] == '.' ? ans += "[.]" : ans += address[i];
+		}
+		return ans;
+	}
+	//TEST_1108 end
+
+	//TSET_516 start
+	//区间dp
+	int longestPalindromeSubseq_DP(string s)
+	{
+		int n = (int)s.length();
+		/*function<int(int, int)> dfs = [&](int i, int j) -> int
+		{
+			if (i > j)
+				return 0;
+			if (i == j)
+				return 1;
+			if (s[i] == s[j])
+				return dfs(i + 1, j - 1) + 2;
+			return max(dfs(i + 1, j), dfs(i, j - 1));
+		};
+		return dfs(0, n - 1);*/
+
+		vector<vector<int>> dp(n + 1, vector<int>(n + 1));
+		for (int i = n - 1; i >= 0; i--)
+		{
+			for (int j = 0; j < n; j++)
+			{
+				if (i > j)
+					dp[i][j] = 0;
+				else if (i == j)
+					dp[i][j] = 1;
+				else if (s[i] == s[j])
+					dp[i][j] = dp[i + 1][j - 1] + 2;
+				else
+					dp[i][j] = max(dp[i + 1][j], dp[i][j - 1]);
+			}
+		}
+		return dp[0][n - 1];
+	}
+	//单数组优化
+	int longestPalindromeSubseq(string s) 
+	{
+		string originS = s;
+		reverse(s.begin(), s.end());
+
+		int n = (int)s.length();
+		vector<int> dp(n + 1);
+		for (int i = 0; i < n; i++)
+		{
+			char a = originS[i];
+			int pre = 0;
+			for (int j = 0; j < n; j++)
+			{
+				char b = s[j];
+				int temp = dp[j + 1];
+				if (a == b)
+				{
+					dp[j + 1] = pre + 1;
+				}
+				else
+				{
+					dp[j + 1] = max(dp[j + 1], dp[j]);
+				}
+				pre = temp;
+			}
+		}
+		return dp[n];
+	}
+	//TEST_516 end
+
+	//TEST_1671 start
+	int minimumMountainRemovals(vector<int>& nums) 
+	{
+		vector<int> g;
+		int n = (int)nums.size();
+		vector<int> start;
+		vector<int> end;
+
+		for (int i = 0; i < n; i++)
+		{
+			int x = nums[i];
+			int left = 0;
+			int right = (int)g.size() - 1;
+			int ans;
+			if (g.empty())
+			{
+				ans = 0;
+			}
+			else
+			{
+				while (left <= right)
+				{
+					int mid = left + (right - left) / 2;
+					if (g[mid] >= x)
+						right = mid - 1;
+					else
+						left = mid + 1;
+				}
+				ans = left;
+			}
+			if (ans == (int)g.size())
+			{
+				g.push_back(x);
+				start.push_back((int)g.size());
+			}
+			else
+			{
+				g[ans] = x;
+				start.push_back(ans + 1);
+			}
+		}
+		g.clear();
+		for (int i = n - 1; i >= 0; i--)
+		{
+			int x = nums[i];
+			int left = 0;
+			int right = (int)g.size() - 1;
+			int ans;
+			if (g.empty())
+			{
+				ans = 0;
+			}
+			else
+			{
+				while (left <= right)
+				{
+					int mid = left + (right - left) / 2;
+					if (g[mid] >= x)
+						right = mid - 1;
+					else
+						left = mid + 1;
+				}
+				ans = left;
+			}
+			if (ans == (int)g.size())
+			{
+				g.push_back(x);
+				end.push_back((int)g.size());
+			}
+			else
+			{
+				g[ans] = x;
+				end.push_back(ans + 1);
+			}
+		}
+		int res = INT_MAX;
+		for (int i = 0; i < n; i++)
+		{
+			cout << start[i] << " ";
+			cout << end[i] << endl;
+			if (start[i] == 1 || end[n - i - 1] == 1)
+				continue;
+			res = min(res, n - (start[i] + end[n - i - 1] - 1));
+		}
+		return res;
+	}
+	//TEST_1671 end
+
+	//TEST_1302 start
+	int deepestLeavesSum(TreeNode* root) 
+	{
+		int ans = 0;
+		int number = 1;
+		int count = 0;
+		queue<TreeNode*> q;
+		q.push(root);
+		while (!q.empty())
+		{
+			ans = 0;		
+			while (number > 0)
+			{
+				TreeNode* node = q.front();
+				q.pop();
+				if (node->left)
+				{
+					q.push(node->left);
+					count++;
+				}
+				if (node->right)
+				{
+					q.push(node->right);
+					count++;
+				}
+				ans += node->val;
+				number--;
+			}
+			number = count;
+			count = 0;
+		}
+		return ans;
+	}
+	//TEST_1302 end
+
+	//TEST_2325 start
+	string decodeMessage(string key, string message) 
+	{
+		char rpm[26]{};
+		char k = 'a';
+		for (auto c : key)
+		{
+			if (c != ' ' && rpm[c - 'a'] == 0)
+			{
+				rpm[c - 'a'] = k;
+				k++;
+			}
+		}
+		for (auto& c : message)
+		{
+			if (c != ' ')
+				c = rpm[c - 'a'];
+		}
+		return message;
+	}
+	//TEST_2325 end
+
+	//TEST_LCR_054 start
+	TreeNode* convertBST(TreeNode* root) 
+	{
+		int mx = 0;
+		function<void(TreeNode*)> dfs = [&](TreeNode* node)
+		{
+			if (!node)
+				return;
+			dfs(node->right);
+			node->val += mx;
+			mx = node->val;
+			dfs(node->left);
+		};
+		dfs(root);
+		return root;
+	}
+	//TEST_LCR_054 end
+
+	//TEST_2315 start
+	int countAsterisks(string s) 
+	{
+		int n = (int)s.length();
+		int count = 0;
+		int ans = 0;
+		for (int i = 0; i < n; i++)
+		{
+			if(s[i] == '|')
+				count++;
+			if (count % 2 == 0 && s[i] == '*')
+				ans++;
+		}
+		return ans;
+	}
+	//TEST_2315 end
+
+	//TEST_OFFER_58 start
+	string reverseLeftWords(string s, int n) 
+	{
+		return s.substr(n) + s.substr(0, n);
+	}
+	//TEST_OFFER_58 end
+
+	//TEST_LCR_083 start
+	vector<vector<int>> permute_083(vector<int>& nums) 
+	{
+		int n = (int)nums.size();
+		vector<vector<int>> ans;
+		vector<int> t;
+		vector<int> visited(n);
+		function<void(int)> dfs = [&](int idx)
+		{
+			if (t.size() == n)
+			{
+				ans.push_back(t);
+				return;
+			}
+			for (int i = 0; i < n; i++)
+			{
+				if (!visited[i])
+				{
+					t.push_back(nums[i]);
+					visited[i] = true;
+					dfs(i + 1);
+					visited[i] = false;
+					t.pop_back();
+				}
+			}
+		};
+		dfs(0);
+		return ans;
+	}
+	//TEST_LCR_083 end
+
+	//TEST_1720 start
+	vector<int> decode(vector<int>& encoded, int first) 
+	{
+		vector<int> ans(encoded.size() + 1);
+		ans[0] = first;
+		for (int i = 0; i < (int)encoded.size(); i++)
+		{
+			ans[i + 1] = ans[i] ^ encoded[i];
+		}
+		return ans;
+	}
+	//TEST_1720 end
+
+	//TEST_OFFER_3 start
+	int findRepeatNumber(vector<int>& nums) 
+	{
+		unordered_map<int, int> t;
+		for (int i = 0; i < (int)nums.size(); i++)
+		{
+			if (t[nums[i]])
+				return nums[i];
+			t[nums[i]]++;
+		}
+		return -1;
+	}
+	//TEST_OFFER_3 end
+
+	//TEST_6953 start
+	bool canSplitArray(vector<int>& nums, int m) 
+	{
+		int n = (int)nums.size();
+		if (n == 1 || n == 2)
+			return true;
+		int t = nums[0] + nums[1];
+		bool valid = false;
+		for (int i = 2; i < n; i++)
+		{
+			if (t >= m)
+				valid = true;
+			t = t + nums[i] - nums[i - 2];
+		}
+		if (t >= m)
+			valid = true;
+		return valid;
+	}
+	//TEST_6953 end
+
+	//TEST_6925 start
+	string finalString(string s) 
+	{
+		string ans = "";
+		for (int i = 0; i < (int)s.length(); i++)
+		{
+			if (s[i] != 'i')
+			{
+				ans += s[i];
+			}
+			else
+			{
+				reverse(ans.begin(), ans.end());
+			}
+		}
+		return ans;
+	}
+	//TEST_6925 end
+
+	//TEST_771 start
+	int numJewelsInStones_bitwise(string jewels, string stones)
+	{
+		// 把 jewels 转换成字符集合 mask
+		long long mask = 0;
+		for (char c : jewels)
+			mask |= 1LL << (c & 63);//c & 63 -> 取字母对应的ascii码的低6位
+		// 统计有多少 stones[i] 在集合 mask 中
+		int ans = 0;
+		for (char c : stones)
+			ans += mask >> (c & 63) & 1;
+		return ans;
+	}
+
+	int numJewelsInStones(string jewels, string stones) 
+	{
+		int ans = 0;
+		unordered_map<char, bool> map;
+		for (char a : jewels)
+		{
+			map[a] = true;
+		}
+		for (char a : stones)
+		{
+			if (map[a])
+				ans++;
+		}
+		return ans;
+	}
+	//TEST_771 end
+
+	//TEST_OFFER_5 start
+	string replaceSpace(string s) 
+	{     //字符数组
+		string ary;   //存储结果
+
+		for (auto& c : s) 
+		{   //遍历原字符串
+			if (c == ' ') 
+			{
+				ary.push_back('%');
+				ary.push_back('2');
+				ary.push_back('0');
+			}
+			else {
+				ary.push_back(c);
+			}
+		}
+		return ary;
+	}
+	//TEST_OFFER_5 end
+
+	//TEST_239 start
+	vector<int> maxSlidingWindow(vector<int>& nums, int k) 
+	{
+		int n = (int)nums.size();
+		deque<int> q;
+		for (int i = 0; i < k; i++)
+		{
+			while (!q.empty() && nums[i] >= nums[q.back()])
+			{
+				q.pop_back();
+			}
+			q.push_back(i);
+		}
+
+		vector<int> ans = { nums[q.front()] };
+		for (int i = k; i < n; i++)
+		{
+			while (!q.empty() && nums[i] >= nums[q.back()])
+			{
+				q.pop_back();
+			}
+			q.push_back(i);
+			if (q.front() == i - k)
+				q.pop_front();
+			ans.push_back(nums[q.front()]);
+		}
+		return ans;
+	}
+	//TEST_239 end
+
+	//TEST_1880 start
+	bool isSumEqual(string firstWord, string secondWord, string targetWord) 
+	{
+		function<int(string)> getAns = [&](string a) -> int
+		{
+			int ans = 0;
+			for (int i = 0; i < (int)a.length(); i++)
+			{
+				ans *= 10;
+				ans += a[i] - 'a';
+			}
+			return ans;
+		};
+		return getAns(firstWord) + getAns(secondWord) == getAns(targetWord);
+	}
+	//TEST_1880 end
+
+	//TEST_210 start
+	vector<int> findOrder(int numCourses, vector<vector<int>>& prerequisites) 
+	{
+		int n = (int)prerequisites.size();
+		vector<vector<int>> graph(numCourses);
+		vector<int> visited(numCourses);
+		vector<int> order;
+		bool valid = true;;
+		for (int i = 0; i < n; i++)
+		{
+			graph[prerequisites[i][1]].push_back(prerequisites[i][0]);
+		}
+		function<void(int)> dfs = [&](int idx)
+		{
+			visited[idx] = 1;
+			for (int i = 0; i < (int)graph[idx].size(); i++)
+			{
+				if (visited[graph[idx][i]] == 0)
+				{
+					dfs(graph[idx][i]);
+					if (!valid)
+						return;
+				}
+				else if (visited[graph[idx][i]] == 1)
+				{
+					valid = false;
+					return;
+				}
+			}
+			visited[idx] = 2;
+			order.insert(order.begin(), idx);
+		};
+		for (int i = 0; i < numCourses; i++)
+		{
+			if (visited[i] == 0)
+				dfs(i);
+		}
+		if(!valid)
+			return {};
+		return order;
+	}
+	//TEST_210 end
+
+	//TEST_207 start
+	bool canFinish(int numCourses, vector<vector<int>>& prerequisites) 
+	{
+		int n = (int)prerequisites.size();
+		vector<vector<int>> graph(numCourses);
+		vector<int> visited(numCourses);
+		bool valid = true;;
+		for(int i = 0; i < n; i++)
+		{
+			graph[prerequisites[i][1]].push_back(prerequisites[i][0]);
+		}
+		function<void(int)> dfs = [&](int idx)
+		{
+			visited[idx] = 1;
+			for (int i = 0; i < (int)graph[idx].size(); i++)
+			{
+				if (visited[graph[idx][i]] == 0)
+				{
+					dfs(graph[idx][i]);
+					if (!valid)
+						return;
+				}
+				else if (visited[graph[idx][i]] == 1)
+				{
+					valid = false;
+					return;
+				}
+			}
+			visited[idx] = 2;
+		};
+		for (int i = 0; i < numCourses; i++)
+		{
+			if (visited[i] == 0)
+				dfs(i);
+		}
+		return valid;
+	}
+	//TEST_207 end
+
+	//TEST_205 start
+	bool isIsomorphic(string s, string t) 
+	{
+		unordered_map<char, char> m1;
+		unordered_map<char, char> m2;
+		for (int i = 0; i < (int)s.length(); i++)
+		{
+			if (m1.find(s[i]) == m1.end())
+				m1[s[i]] = t[i];
+			if (m2.find(t[i]) == m2.end())
+				m2[t[i]] = s[i];
+			if (m1[s[i]] != t[i] || m2[t[i]] != s[i])
+				return false;
+		}
+		return true;
+	}
+	//TEST_205 end
+
+	//TEST_204 start
+	int countPrimes(int n) 
+	{
+		vector<bool> isPrime(n, true);
+		int ans = 0;
+		for (int i = 2; i < n; i++)
+		{
+			if (isPrime[i])
+				ans++;
+			if ((long long)i * i < n)
+			{
+				for (int j = i * i; j < n; j += i)
+				{
+					isPrime[j] = false;
+				}
+			}
+		}
+		return ans;
+	}
+	//TEST_204 end
+
+	//TEST_201 start
+	int rangeBitwiseAnd(int left, int right) 
+	{
+		int shift = 0;
+		while (left < right)
+		{
+			left = left >> 1;
+			right = right >> 1;
+			shift++;
+		}
+		return left << shift;
+	}
+	//TEST_201 end
+
+	//TEST_202 start
+	bool isHappy(int n) 
+	{
+		unordered_map<int, int> map;
+		map[n]++;
+		int nxt = 0;
+		bool change = true;
+		while (map[n] == 1)
+		{
+			if (n == 1)
+				return true;
+			while (n)
+			{
+				nxt += (int)pow(n % 10, 2);
+				n /= 10;
+			}
+			n = nxt;
+			nxt = 0;
+			map[n]++;
+		}
+		return false;
+	}
+	//TEST_202 end
+
+	//TEST_179 start
+	string largestNumber(vector<int>& nums) 
+	{
+		auto c = [](int a, int b)
+		{
+			string a1 = to_string(a);
+			string b1 = to_string(b);
+			return a1 + b1 > b1 + a1;
+		};
+		sort(nums.begin(), nums.end(), c);
+		string ans = "";
+		for (int i = 0; i < (int)nums.size(); i++)
+		{
+			if (nums[i] == 0 && i != 0 && ans[0] == '0')
+				continue;
+			ans += to_string(nums[i]);
+		}
+		return ans;
+	}
+	//TEST_179 end
+
+	//TEST_6918 start
+	string minimumString(string a, string b, string c) 
+	{
+		function<string(string, string)> merge = [&](string st1, string st2) -> string
+		{
+			if (st1.find(st2) != string::npos)
+				return st1;
+			if (st1.find(st2) != string::npos)
+				return st2;
+			for (int i = (int)min(st1.length(), st2.length()); i > 0; i--)
+			{
+				if (st1.substr(0, i) == st2.substr(st2.length() - i, i))
+					return st2 + st1.substr(i);
+			}
+			return st2 + st1;
+		};
+		
+		string ans = "";
+		vector<vector<string>> t{{a, b, c}, { a,c,b }, { b, a, c }, { b,c,a }, { c,a,b }, { c,b,a }};
+		for (int i = 0; i < (int)t.size(); i++)
+		{
+			string temp = "";
+			temp = merge(merge(t[i][0], t[i][1]), t[i][2]);
+			cout << temp << endl;
+			if (ans == "" || temp.length() < ans.length() || (temp.length() == ans.length() && temp < ans))
+			{
+				ans = temp;
+			}
+		}
+		return ans;
+	}
+	//TEST_6918 end
+
+	//TEST_6900 start
+	int countCompleteSubarrays(vector<int>& nums) 
+	{
+		unordered_map<int, int> t;
+		for (int i : nums)
+			t[i]++;
+		int diff = (int)t.size();
+		int ans = 0;
+		t.clear();
+		int left = 0;
+		for (int i = 0; i < (int)nums.size(); i++)
+		{
+			t[nums[i]]++;
+			while ((int)t.size() == diff)
+			{
+				t[nums[left]]--;
+				if (t[nums[left]] == 0)
+					t.erase(nums[left]);
+				left++;
+			}
+			ans += left;
+		}
+		return ans;
+	}
+	//TEST_6900 end
+
+	//TEST_6917 start
+	int numberOfEmployeesWhoMetTarget(vector<int>& hours, int target) 
+	{
+		int ans = 0;
+		for (int i = 0; i < (int)hours.size(); i++)
+		{
+			if (hours[i] >= target)
+				ans++;
+		}
+		return ans;
+	}
+	//TEST_6917 end
+
+	//TEST_190 start
+	uint32_t reverseBits(uint32_t n) 
+	{
+		uint32_t ans = 0;
+		int bit = 0;
+		while (n)
+		{
+			ans *= 2;
+			ans += n & 1;
+			n /= 2;
+			bit++;
+		}
+		while (bit < 32)
+		{
+			bit++;
+			ans *= 2;
+		}
+		return ans;
+	}
+	//TEST_190 end
+
+	//TEST_191 start
+	int hammingWeight(uint32_t n) 
+	{
+		int ans = 0;
+		while (n)
+		{
+			if (n & 1)
+				ans++;
+			n /= 2;
+		}
+		return ans;
+	}
+	//TEST_191 end
+
+	//TEST_172 start
+	int trailingZeroes(int n) 
+	{
+		int ans = 0;
+		for (int i = 5; i <= n; i += 5) 
+		{
+			for (int x = i; x % 5 == 0; x /= 5) 
+			{
+				++ans;
+			}
+		}
+		return ans;
+	}
+	//TEST_172 end
+
+	//TEST_174 start
+	int calculateMinimumHP(vector<vector<int>>& dungeon) 
+	{
+		int n = (int)dungeon.size(), m = (int)dungeon[0].size();
+		vector<vector<int>> dp(n + 1, vector<int>(m + 1, INT_MAX));
+		dp[n][m - 1] = dp[n - 1][m] = 1;
+		for (int i = n - 1; i >= 0; --i) {
+			for (int j = m - 1; j >= 0; --j) {
+				int minn = min(dp[i + 1][j], dp[i][j + 1]);
+				dp[i][j] = max(minn - dungeon[i][j], 1);
+			}
+		}
+		return dp[0][0];
+	}
+	//TEST_174 end
+
+	//TEST_165 start
+	int compareVersion(string version1, string version2)
+	{
+		int p1 = 0;
+		int p2 = 0;
+		int n = (int)version1.length();
+		int m = (int)version2.length();
+		while (p1 != n || p2 != m)
+		{
+			long x = 0;
+			for (; p1 < n && version1[p1] != '.'; ++p1)
+			{
+				x = x * 10 + version1[p1] - '0';
+			}
+			++p1;
+			long y = 0;
+			for (; p2 < m && version2[p2] != '.'; ++p2)
+			{
+				y = y * 10 + version2[p2] - '0';
+			}
+			++p2;
+			if (x != y) 
+			{
+				return x > y ? 1 : -1;
+			}
+		}
+		return 0;
+
+	}
+	//TEST_165 end
+
+	//TEST_160 start
+	ListNode* getIntersectionNode_WOW(ListNode* headA, ListNode* headB) 
+	{
+		if (headA == nullptr || headB == nullptr)
+			return nullptr;
+		ListNode* pA = headA, * pB = headB;
+		while (pA != pB) 
+		{
+			pA = pA == nullptr ? headB : pA->next;
+			pB = pB == nullptr ? headA : pB->next;
+		}
+		return pA;
+	}
+
+	ListNode* getIntersectionNode(ListNode* headA, ListNode* headB) 
+	{
+		unordered_map<ListNode*, int> m;
+		while (headA)
+		{
+			m[headA]++;
+			headA = headA->next;
+		}
+		while (headB)
+		{
+			if (m[headB] > 0)
+				return headB;
+			headB = headB->next;
+		}
+		return nullptr;
+	}
+	//TEST_160 end
+
+	//TEST_168 start
+	string convertToTitle(int columnNumber)
+	{
+		string ans;
+		while (columnNumber)
+		{
+			int remain = columnNumber % 26;
+			if (remain == 0)
+			{
+				remain = 26;
+				columnNumber -= 26;
+			}
+			ans.push_back(remain + 64);
+			columnNumber /= 26;
+		}
+		reverse(ans.begin(), ans.end());
+		return ans;
+	}
+	//TEST_168 end
+
+	//TEST_151 start
+	//这里其实可以从后往前一遍就可以，我tm写的时候就知道从前往后ohnoooo
+	string reverseWords(string s) 
+	{
+		int slow = 0;
+		int fast = 0;
+		int n = (int)s.length();
+		vector<string> t;
+		while (true)
+		{
+			if (fast == n)
+				break;
+			if (s[fast] != ' ')
+				fast++;
+			else if (s[fast] == ' ')
+			{
+				if(s[slow] != ' ')
+					t.push_back(s.substr(slow, fast - slow));
+				fast++;
+				slow = fast;
+			}
+		}
+		string ans = s.substr(slow, fast - slow);
+		for (int i = (int)t.size() - 1; i >= 0; i--)
+		{
+			ans += ' ';
+			ans += t[i];
+		}
+		int check = 0;
+		while (ans[check] == ' ')
+		{
+			check++;
+		}
+		return ans.substr(check);
+	}
+	//TEST_151 end
+
+	//TEST_1964 start
+	int BSA_1964(vector<int>& g, int aim)
+	{
+		if (g.empty())
+			return 0;
+		int left = 0;
+		int right = (int)g.size() - 1;
+		while (left <= right)
+		{
+			int mid = left + (right - left) / 2;
+			if (g[mid] > aim)
+				right = mid - 1;
+			else
+				left = mid + 1;
+		}
+		return	left;
+	}
+
+	vector<int> longestObstacleCourseAtEachPosition(vector<int>& obstacles) 
+	{
+		vector<int> g;
+		vector<int> ans;
+		for (int i = 0; i < (int)obstacles.size(); i++)
+		{
+			int j = BSA_1964(g, obstacles[i]);
+			if (j == (int)g.size())
+				g.push_back(obstacles[i]);
+			else
+				g[j] = obstacles[i];
+
+			ans.push_back(j + 1);
+		}
+		return ans;
+	}
+	//TEST_1964 end
+
+	//TEST_673 start
+	int findNumberOfLIS(vector<int>& nums)
+	{
+		int n = (int)nums.size();
+		vector<int> dp(n);
+		vector<int> count(n);
+		int mx = 0;
+		for (int i = 0; i < n; i++)
+		{
+			count[i] = 1;
+			for (int j = 0; j < i; j++)
+			{
+				if (nums[j] < nums[i])
+				{
+					if (dp[j] > dp[i])
+						count[i] = count[j];
+					else if (dp[j] == dp[i])
+						count[i] += count[j];
+					dp[i] = max(dp[i], dp[j]);
+				}
+			}
+			dp[i]++;
+			if (dp[i] > mx)
+				mx = dp[i];
+		}
+		int ans = 0;
+		for (int i = 0; i < n; i++)
+		{
+			if (mx == dp[i])
+				ans += count[i];
+		}
+		return ans;
+	}
+	//TEST_673 end
+
 	//TEST_109 start
 	ListNode* midway(ListNode* left, ListNode* right)
 	{
@@ -23,7 +1611,7 @@ public:
 	{
 		if (left_node == right_node)
 			return nullptr;
-		ListNode* mid_node = midway(left_node);
+		ListNode* mid_node = midway(left_node, right_node);
 
 		TreeNode* node = new TreeNode(mid_node->val);
 		node->left = dfs_109(left_node, mid_node);
@@ -50,7 +1638,7 @@ public:
 	}
 	TreeNode* sortedArrayToBST(vector<int>& nums)
 	{
-		int len = nums.size();
+		int len = (int)nums.size();
 		return dfs_108(nums, 0, len - 1);
 	}
 	//TEST_108 end
@@ -5697,7 +7285,8 @@ public:
 	//TEST_169 end
 
 	//TEST_88 start
-	void merge(vector<int>& nums1, int m, vector<int>& nums2, int n) {
+	void merge(vector<int>& nums1, int m, vector<int>& nums2, int n) 
+	{
 		int i = int(nums1.size()) - 1;
 		m--;
 		n--;
@@ -5711,7 +7300,8 @@ public:
 	//TEST_88 end
 
 	//TEST_1073 start
-	vector<int> addNegabinary(vector<int>& arr1, vector<int>& arr2) {
+	vector<int> addNegabinary(vector<int>& arr1, vector<int>& arr2) 
+	{
 		int i = int(arr1.size() - 1);
 		int j = int(arr2.size() - 1);
 		int carry = 0;
@@ -5749,7 +7339,8 @@ public:
 	//TEST_1073 end
 
 	//TEST_1017 start
-	string baseNeg2(int n) {
+	string baseNeg2(int n) 
+	{
 		string ans;
 		while (n)
 		{

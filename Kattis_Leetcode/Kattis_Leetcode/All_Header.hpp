@@ -1,6 +1,7 @@
 #ifndef ALL_HEAD
 #define ALL_HEAD
 
+#include <stdint.h>
 #include <numeric>
 #include <iostream>
 #include <list>
@@ -134,6 +135,64 @@ public:
 	}
 };
 
+class TrieNode
+{
+public:
+	bool isWordEnd;
+	vector<TrieNode*> children;
+	TrieNode()
+	{
+		children.resize(26);
+		isWordEnd = false;
+	}
+};
+class Trie {
+private:
+	TrieNode* root;
+public:
+	Trie() {
+		root = new TrieNode();
+	}
+
+	void insert(string word) {
+		TrieNode* cur = root;
+
+		for (int i = 0; i < (int)word.length(); i++)
+		{
+			int c = word[i] - 'a';
+			if (cur->children[c] == nullptr)
+				cur->children[c] = new TrieNode();
+			cur = cur->children[c];
+		}
+		cur->isWordEnd = true;
+	}
+
+	bool search(string word) {
+		TrieNode* cur = root;
+
+		for (int i = 0; i < (int)word.length(); i++)
+		{
+			int c = word[i] - 'a';
+			if (cur->children[c] == nullptr)
+				return false;
+			cur = cur->children[c];
+		}
+		return cur->isWordEnd;
+	}
+
+	bool startsWith(string prefix) {
+		TrieNode* cur = root;
+
+		for (int i = 0; i < (int)prefix.length(); i++)
+		{
+			int c = prefix[i] - 'a';
+			if (cur->children[c] == nullptr)
+				return false;
+			cur = cur->children[c];
+		}
+		return true;
+	}
+};
 /*c++ using custom compare function!!!!!!
 auto c = [](pair<int, pair<int, int>> a, pair<int, pair<int, int>> b)->bool {return a.first < b.first; };
 set<pair<int, pair<int, int>>, decltype(c)> map(c);

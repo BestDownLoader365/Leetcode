@@ -3,8 +3,7 @@
 int main()
 {
 	Solution test;
-
-	vector<int> a{2,3,7,9,3};
-
-	
+	string a = "cbgsadfg";
+	a[0] -= char(a[1]);
+	cout << a << endl;
 }
